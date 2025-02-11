@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
@@ -8,134 +9,114 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-var featch1 = Featch(anal: [
-  '''
-# DDD
-
-## Инструкция запуска приложения
-
-### Инструкция запуска через терминал
-
-1. Скачиваем зависимости проекта: `flutter pub get`
-2. Просмотреть доступные девайсы : `flutter devices`
-3. Запустить мобильное приложение (Пример web платформа):`flutter run -d chrome`
-    ''',
-  'какая хуйня на второй'
-], dev: [
-  'Info Dev_1',
-  'разработка 2'
-], test: [
-  'Info Test_1',
-  'тестирование 2'
-], name: '1');
-var featch2 = Featch(
-    anal: ['Info Anal_2'],
-    dev: ['Info Dev_2'],
-    test: ['Info Test_2'],
-    name: '2');
-var featch3 = Featch(
-    anal: ['Info Anal_3'],
-    dev: ['Info Dev_3'],
-    test: ['Info Test_3'],
-    name: '3');
-var featch4 = Featch(
-    anal: ['Info Anal_4'],
-    dev: ['Info Dev_4'],
-    test: ['Info Test_4'],
-    name: '4');
-List<Featch> listFeatch = [featch1, featch2, featch3, featch4];
-
 class _MainScreenState extends State<MainScreen> {
+  int countFeaturesDataBase = 0;
   int flexAnal = 1;
   int flexDev = 1;
   int flexTest = 1;
-  int indexFeatch = 0;
-  int indexPartFeatchAnal = 0;
-  int indexPartFeatchDev = 0;
-  int indexPartFeatchTest = 0;
-  String nameFeatch = 'Выбери фичу';
+  int? indexCurrentFeature;
+  int indexCurrentPartAnalFeature = 0;
+  int indexCurrentPartDevFeature = 0;
+  int indexCurrentPartTestFeature = 0;
+
   bool readTest = true;
   bool readDev = true;
   bool readAnal = true;
-  bool readNameFeatch = true;
+  bool readNameFeature = true;
+  bool firstInitial = true;
+  final controllerNameForNewFeature = TextEditingController();
+  final controllerFeatureName = TextEditingController();
 
-  void changeFeatch(int index) {
-    indexPartFeatchAnal = indexPartFeatchDev = indexPartFeatchTest = 0;
-    indexFeatch = index;
-    nameFeatch = '${listFeatch[index].name}';
+  final controllerAnal = TextEditingController();
+  final controllerDev = TextEditingController();
+  final controllerTest = TextEditingController();
+
+  final List<Feature> features = [];
+
+  Future<String> initFeature() async {
+    if (firstInitial) {
+      final db = FirebaseFirestore.instance;
+
+      await db.collection('features').get().then((docs) {
+        countFeaturesDataBase = docs.docs.length;
+      });
+      for (int i = 0; i < countFeaturesDataBase; i++) {
+        final ref = db.collection('features').doc('$i').withConverter(
+            fromFirestore: Feature.fromFirestore,
+            toFirestore: (Feature feature, _) => feature.toFirestore());
+        final docSnap = await ref.get();
+        final feature = docSnap.data();
+        if (feature != null) {
+          features.add(feature);
+        }
+      }
+
+      firstInitial = false;
+
+      return 'Data Loaded';
+    }
+    return 'Second initial';
+  }
+
+  void saveDataBase() async {
+    final db = FirebaseFirestore.instance;
+    if (countFeaturesDataBase > features.length) {
+      for (int i = features.length; i <= countFeaturesDataBase; i++) {
+        db.collection('features').doc('$i').delete();
+      }
+    }
+    for (int i = 0; i < features.length; i++) {
+      final docRef = db
+          .collection('features')
+          .withConverter(
+            fromFirestore: Feature.fromFirestore,
+            toFirestore: (Feature feature, _) => feature.toFirestore(),
+          )
+          .doc('$i');
+      await docRef.set(features[i]);
+    }
+  }
+
+  void changeFeature(int index) {
+    indexCurrentFeature = index;
+    indexCurrentPartAnalFeature = 0;
     setState(() {});
   }
 
-  void changeFlexAnal() {
-    if (flexAnal == 1) {
-      flexAnal = 20;
+  void changeFlex(String nameColumn) {
+    if (nameColumn == 'anal') {
+      flexAnal == 1 ? flexAnal = 20 : flexAnal = 1;
       setState(() {});
-    } else {
-      flexAnal = 1;
+    }
+    if (nameColumn == 'dev') {
+      flexDev == 1 ? flexDev = 20 : flexDev = 1;
+      setState(() {});
+    }
+    if (nameColumn == 'test') {
+      flexTest == 1 ? flexTest = 20 : flexTest = 1;
       setState(() {});
     }
   }
 
-  void changeFlexDev() {
-    if (flexDev == 1) {
-      flexDev = 20;
-      setState(() {});
-    } else {
-      flexDev = 1;
-      setState(() {});
-    }
-  }
-
-  void changeFlexTest() {
-    if (flexTest == 1) {
-      flexTest = 20;
-      setState(() {});
-    } else {
-      flexTest = 1;
-      setState(() {});
-    }
-  }
-
-  void deleteCurrentFeatch(int currentFeatch) {
-    listFeatch.removeAt(currentFeatch);
-    if (currentFeatch == listFeatch.length) {
-      indexFeatch = 0;
-    }
-    nameFeatch = 'Featch #${indexFeatch + 1}';
-    setState(() {});
-  }
-
-  final controllerName = TextEditingController();
-  final controllerTestUpdate = TextEditingController();
-  final controllerDevUpdate = TextEditingController();
-  final controllerAnalUpdate = TextEditingController();
-  final controllerNameFeatchUpdate = TextEditingController();
-
-  void saveFeatch() {
-    var textName = controllerName.text;
-    var featch = Featch(anal: [''], dev: [''], test: [''], name: textName);
-    listFeatch.add(featch);
-    setState(() {});
-
-    controllerName.text = '';
-    Navigator.of(context).pop();
-  }
-
-  alert(context) => showDialog<String>(
+  addFeature(context) => showDialog<String>(
         context: context,
         builder: (BuildContext context) => AlertDialog(
           title: const Center(
-            child: Text('Create new featch'),
+            child: Text('Создание новой фичи'),
           ),
-          content: Column(
-            children: [
-              SizedBox(height: 20),
-              Text('Name featch'),
-              TextField(controller: controllerName),
-            ],
+          content: Container(
+            height: 300,
+            width: 300,
+            child: Column(
+              children: [
+                SizedBox(height: 20),
+                Text('Введите название новой фичи'),
+                TextField(controller: controllerNameForNewFeature),
+              ],
+            ),
           ),
           actions: [
-            TextButton(onPressed: saveFeatch, child: Text('Save')),
+            TextButton(onPressed: saveNewFeature, child: Text('Save')),
             TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -145,510 +126,653 @@ class _MainScreenState extends State<MainScreen> {
         ),
       );
 
-  void replaceFlexAll() {
-    flexAnal = flexDev = flexTest = 1;
+  void deleteCurrentFeature() {
+    features.removeAt(indexCurrentFeature!);
+    indexCurrentFeature = 0;
     setState(() {});
   }
 
-  void updateInfoTest() {
-    controllerTestUpdate.text =
-        '${listFeatch[indexFeatch].test[indexPartFeatchTest]}';
-    readTest = false;
+  void saveNewFeature() {
+    features.add(Feature(
+        anal: [''],
+        dev: [''],
+        test: [''],
+        featureName: controllerNameForNewFeature.text));
+    Navigator.of(context).pop();
     setState(() {});
   }
 
-  void updateInfoDev() {
-    controllerDevUpdate.text =
-        '${listFeatch[indexFeatch].dev[indexPartFeatchDev]}';
-    readDev = false;
+  void changePartFeature(int index, String columnName) {
+    if (columnName == 'anal') {
+      indexCurrentPartAnalFeature = index;
+    }
+    if (columnName == 'dev') {
+      indexCurrentPartDevFeature = index;
+    }
+    if (columnName == 'test') {
+      indexCurrentPartTestFeature = index;
+    }
     setState(() {});
   }
 
-  void updateInfoAnal() {
-    controllerAnalUpdate.text =
-        '${listFeatch[indexFeatch].anal[indexPartFeatchAnal]}';
-    readAnal = false;
+  void addPartFeature(String columnName) {
+    if (columnName == 'anal') {
+      features[indexCurrentFeature!].anal.add('');
+    }
+    if (columnName == 'dev') {
+      features[indexCurrentFeature!].dev.add('');
+    }
+    if (columnName == 'test') {
+      features[indexCurrentFeature!].test.add('');
+    }
     setState(() {});
   }
 
-  void saveInfoTest() {
-    String text = controllerTestUpdate.text;
-    listFeatch[indexFeatch].test[indexPartFeatchTest] = text;
-    readTest = true;
+  void deletePartFeature(String columnName) {
+    if (columnName == 'anal') {
+      features[indexCurrentFeature!].anal.removeAt(indexCurrentPartAnalFeature);
+      indexCurrentPartAnalFeature = 0;
+      if (features[indexCurrentFeature!].anal.isEmpty) {
+        features[indexCurrentFeature!].anal.add('');
+      }
+    }
+    if (columnName == 'dev') {
+      features[indexCurrentFeature!].dev.removeAt(indexCurrentPartDevFeature);
+      indexCurrentPartDevFeature = 0;
+      if (features[indexCurrentFeature!].dev.isEmpty) {
+        features[indexCurrentFeature!].dev.add('');
+      }
+    }
+    if (columnName == 'test') {
+      features[indexCurrentFeature!].test.removeAt(indexCurrentPartTestFeature);
+      indexCurrentPartTestFeature = 0;
+      if (features[indexCurrentFeature!].test.isEmpty) {
+        features[indexCurrentFeature!].test.add('');
+      }
+    }
     setState(() {});
   }
 
-  void saveInfoDev() {
-    String text = controllerDevUpdate.text;
-    listFeatch[indexFeatch].dev[indexPartFeatchDev] = text;
-    readDev = true;
+  void editingColumn(String columnName) {
+    if (columnName == 'anal') {
+      readAnal = false;
+      controllerAnal.text =
+          features[indexCurrentFeature!].anal[indexCurrentPartAnalFeature];
+    }
+    if (columnName == 'dev') {
+      readDev = false;
+      controllerDev.text =
+          features[indexCurrentFeature!].dev[indexCurrentPartDevFeature];
+    }
+    if (columnName == 'test') {
+      readTest = false;
+      controllerTest.text =
+          features[indexCurrentFeature!].test[indexCurrentPartTestFeature];
+    }
     setState(() {});
   }
 
-  void saveInfoAnal() {
-    String text = controllerAnalUpdate.text;
-    listFeatch[indexFeatch].anal[indexPartFeatchAnal] = text;
-    readAnal = true;
+  void saveEditedColumn(String columnName) {
+    if (columnName == 'anal') {
+      features[indexCurrentFeature!].anal[indexCurrentPartAnalFeature] =
+          controllerAnal.text;
+      readAnal = true;
+    }
+    if (columnName == 'dev') {
+      features[indexCurrentFeature!].dev[indexCurrentPartDevFeature] =
+          controllerDev.text;
+      readDev = true;
+    }
+    if (columnName == 'test') {
+      features[indexCurrentFeature!].test[indexCurrentPartTestFeature] =
+          controllerTest.text;
+      readTest = true;
+    }
     setState(() {});
   }
 
-  updateCurrentFeatch(index) {
-    controllerNameFeatchUpdate.text = '${listFeatch[index].name}';
-    readNameFeatch = false;
+  void editingNameFeature() {
+    readNameFeature = false;
     setState(() {});
   }
 
-  saveNameFeatch(index) {
-    listFeatch[index].name = controllerNameFeatchUpdate.text;
-    controllerNameFeatchUpdate.text = '';
-    readNameFeatch = true;
-    setState(() {});
-  }
-
-  cancelUpdateNameFeatch() {
-    controllerNameFeatchUpdate.text = '';
-    readNameFeatch = true;
-    setState(() {});
-  }
-
-  changePartAnal(index) {
-    indexPartFeatchAnal = index;
-    setState(() {});
-  }
-
-  addPartFeatchAnal() {
-    listFeatch[indexFeatch].anal.add('');
-    indexPartFeatchAnal = listFeatch[indexFeatch].anal.length - 1;
-    setState(() {});
-  }
-
-  deletePartFeatchAnal() {
-    listFeatch[indexFeatch].anal.removeAt(indexPartFeatchAnal);
-    indexPartFeatchAnal = indexPartFeatchAnal - 1;
-    setState(() {});
-  }
-
-  changePartDev(index) {
-    indexPartFeatchDev = index;
-    setState(() {});
-  }
-
-  addPartFeatchDev() {
-    listFeatch[indexFeatch].dev.add('');
-    indexPartFeatchDev = listFeatch[indexFeatch].dev.length - 1;
-    setState(() {});
-  }
-
-  deletePartFeatchDev() {
-    listFeatch[indexFeatch].dev.removeAt(indexPartFeatchDev);
-    indexPartFeatchDev = indexPartFeatchDev - 1;
-    setState(() {});
-  }
-
-  changePartTest(index) {
-    indexPartFeatchTest = index;
-    setState(() {});
-  }
-
-  addPartFeatchTest() {
-    listFeatch[indexFeatch].test.add('');
-    indexPartFeatchTest = listFeatch[indexFeatch].test.length - 1;
-    setState(() {});
-  }
-
-  deletePartFeatchTest() {
-    listFeatch[indexFeatch].test.removeAt(indexPartFeatchTest);
-    indexPartFeatchTest = indexPartFeatchTest - 1;
+  void saveEditedNameFeature() {
+    features[indexCurrentFeature!].featureName = controllerFeatureName.text;
+    readNameFeature = true;
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton:
-          IconButton(onPressed: replaceFlexAll, icon: Icon(Icons.replay)),
-      backgroundColor: Colors.white,
-      body: Row(
-        children: [
-          /// Колонка слева с фичами
-          Expanded(
-            child: Column(
-              children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: readNameFeatch
-                            ? Text(
-                                maxLines: 2,
-                                listFeatch[indexFeatch].name,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              )
-                            : Row(
-                                children: [
-                                  Expanded(
-                                      child: TextField(
-                                          controller:
-                                              controllerNameFeatchUpdate)),
-                                  IconButton(
-                                      onPressed: () {
-                                        saveNameFeatch(indexFeatch);
-                                      },
-                                      icon: Icon(Icons.check)),
-                                  IconButton(
-                                      onPressed: () {
-                                        cancelUpdateNameFeatch();
-                                      },
-                                      icon: Icon(Icons.clear)),
-                                ],
+    String nameFeature = (indexCurrentFeature == null)
+        ? 'Выбери фичу'
+        : features[indexCurrentFeature!].featureName;
+    controllerFeatureName.text = nameFeature;
+    return FutureBuilder(
+        future: initFeature(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            return Scaffold(
+              backgroundColor: Colors.white,
+              body: Row(
+                children: [
+                  /// Колонка слева с фичами
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: readNameFeature
+                                    ? Text(
+                                        maxLines: 2,
+                                        nameFeature,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      )
+                                    : Row(
+                                        children: [
+                                          Expanded(
+                                              child: TextField(
+                                                  controller:
+                                                      controllerFeatureName)),
+                                          IconButton(
+                                              onPressed: saveEditedNameFeature,
+                                              icon: Icon(Icons.check)),
+                                        ],
+                                      ),
                               ),
-                      ),
-                      Container(
-                        height: 1,
-                        color: Colors.black,
-                      ),
-                      SizedBox(height: 20),
-                    ],
+                              Container(
+                                height: 1,
+                                color: Colors.black,
+                              ),
+                              SizedBox(height: 20),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                            flex: 14,
+                            child: ListView.builder(
+                              itemCount: features.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return TextButton(
+                                    onPressed: () {
+                                      changeFeature(index);
+                                    },
+                                    child: Text(features[index].featureName));
+                              },
+                            )),
+                        TextButton(
+                            onPressed: saveDataBase,
+                            style: const ButtonStyle(
+                                backgroundColor: WidgetStatePropertyAll(
+                                    Color.fromARGB(255, 172, 37, 160))),
+                            child: const Center(
+                                child: Text(
+                              'Сохранить изменения',
+                              maxLines: 2,
+                              style: TextStyle(color: Colors.white),
+                            ))),
+                        SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              onPressed: (indexCurrentFeature == null)
+                                  ? null
+                                  : () => addFeature(context),
+                              icon: Icon(Icons.add_box),
+                            ),
+                            IconButton(
+                              onPressed: (indexCurrentFeature == null)
+                                  ? null
+                                  : deleteCurrentFeature,
+                              icon: Icon(Icons.delete),
+                            ),
+                            IconButton(
+                              onPressed: (indexCurrentFeature == null)
+                                  ? null
+                                  : editingNameFeature,
+                              icon: Icon(Icons.create),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Expanded(
-                  flex: 14,
-                  child: ListView.builder(
-                    itemCount: listFeatch.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return TextButton(
-                          onPressed: () {
-                            changeFeatch(index);
-                          },
-                          child: Text('${listFeatch[index].name}'));
-                    },
+                  Container(
+                    color: Colors.black,
+                    width: 1,
+                    height: double.infinity,
                   ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        alert(context);
-                      },
-                      icon: Icon(Icons.add_box),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        deleteCurrentFeatch(indexFeatch);
-                      },
-                      icon: Icon(Icons.delete),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        updateCurrentFeatch(indexFeatch);
-                      },
-                      icon: Icon(Icons.create),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Container(
-            color: Colors.black,
-            width: 1,
-            height: double.infinity,
-          ),
 
-          /// Колонка справа с таблицей
-          Expanded(
-            flex: 14,
-            child: Row(
-              children: [
-                Expanded(
-                  flex: flexAnal,
-                  child: Column(
-                    children: [
-                      (flexDev == 20 && flexTest == 20) ||
-                              (flexDev == 20 &&
-                                  flexTest == 1 &&
-                                  flexAnal == 1) ||
-                              (flexDev == 1 && flexTest == 20 && flexAnal == 1)
-                          ? IconButton(
-                              onPressed: changeFlexAnal,
-                              icon: Icon(Icons.analytics))
-                          : TextButton(
-                              child: Text(
-                                'Anal',
-                                style: TextStyle(
-                                    overflow: TextOverflow.ellipsis,
-                                    fontSize: 20),
+                  /// Колонка справа с таблицей
+                  Expanded(
+                    flex: 14,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: flexAnal,
+                          child: Column(
+                            children: [
+                              (flexDev == 20 && flexTest == 20) ||
+                                      (flexDev == 20 &&
+                                          flexTest == 1 &&
+                                          flexAnal == 1) ||
+                                      (flexDev == 1 &&
+                                          flexTest == 20 &&
+                                          flexAnal == 1)
+                                  ? IconButton(
+                                      onPressed: () => changeFlex('anal'),
+                                      icon: Icon(Icons.analytics))
+                                  : TextButton(
+                                      child: Text(
+                                        'Аналитика',
+                                        style: TextStyle(
+                                            overflow: TextOverflow.ellipsis,
+                                            fontSize: 20),
+                                      ),
+                                      onPressed: () => changeFlex('anal')),
+                              Container(
+                                height: 1,
+                                color: Colors.black,
                               ),
-                              onPressed: changeFlexAnal),
-                      Container(
-                        height: 1,
-                        color: Colors.black,
-                      ),
-                      (flexDev == 20 && flexTest == 20) ||
-                              (flexDev == 20 &&
-                                  flexTest == 1 &&
-                                  flexAnal == 1) ||
-                              (flexDev == 1 && flexTest == 20 && flexAnal == 1)
-                          ? Text('')
-                          : readAnal
-                              ? Expanded(
-                                  flex: 15,
-                                  child: ListView(
-                                    children: [
-                                      Center(
-                                        child: MarkdownBody(
-                                            data:
-                                                '${listFeatch[indexFeatch].anal[indexPartFeatchAnal]}'),
-                                      )
-                                    ],
-                                  ),
-                                )
-                              : Column(
-                                  children: [
-                                    TextField(
-                                      controller: controllerAnalUpdate,
-                                      maxLines: 33,
-                                    ),
-                                    IconButton(
-                                        onPressed: saveInfoAnal,
-                                        icon: Icon(Icons.save))
-                                  ],
-                                ),
-                      Expanded(
-                          child: Row(
-                        children: [
-                          Expanded(
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: listFeatch[indexFeatch].anal.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return TextButton(
-                                    onPressed: () {
-                                      changePartAnal(index);
-                                    },
-                                    child: Text('${index + 1}'));
-                              },
-                            ),
+                              (flexDev == 20 && flexTest == 20) ||
+                                      (flexDev == 20 &&
+                                          flexTest == 1 &&
+                                          flexAnal == 1) ||
+                                      (flexDev == 1 &&
+                                          flexTest == 20 &&
+                                          flexAnal == 1)
+                                  ? Text('')
+                                  : readAnal
+                                      ? Expanded(
+                                          flex: 15,
+                                          child: ListView(
+                                            children: [
+                                              Center(
+                                                child: MarkdownBody(
+                                                  data: (indexCurrentFeature ==
+                                                          null)
+                                                      ? 'Выбери фичу'
+                                                      : features[indexCurrentFeature!]
+                                                              .anal[
+                                                          indexCurrentPartAnalFeature],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      : Column(
+                                          children: [
+                                            TextField(
+                                              controller: controllerAnal,
+                                              maxLines: 33,
+                                            ),
+                                            IconButton(
+                                                onPressed: () =>
+                                                    saveEditedColumn('anal'),
+                                                icon: Icon(Icons.save))
+                                          ],
+                                        ),
+                              (flexDev == 20 && flexTest == 20) ||
+                                      (flexDev == 20 &&
+                                          flexTest == 1 &&
+                                          flexAnal == 1) ||
+                                      (flexDev == 1 &&
+                                          flexTest == 20 &&
+                                          flexAnal == 1) ||
+                                      indexCurrentFeature == null
+                                  ? Text('')
+                                  : Expanded(
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: ListView.builder(
+                                              scrollDirection: Axis.horizontal,
+                                              itemCount: (indexCurrentFeature ==
+                                                      null)
+                                                  ? 1
+                                                  : features[
+                                                          indexCurrentFeature!]
+                                                      .anal
+                                                      .length,
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
+                                                return TextButton(
+                                                  style: ButtonStyle(
+                                                    backgroundColor:
+                                                        WidgetStatePropertyAll(
+                                                            (index ==
+                                                                    indexCurrentPartAnalFeature)
+                                                                ? Colors.grey
+                                                                : Colors.white),
+                                                  ),
+                                                  onPressed: () =>
+                                                      changePartFeature(
+                                                          index, 'anal'),
+                                                  child: Text(
+                                                    '${index + 1}',
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                          IconButton(
+                                              onPressed: () =>
+                                                  addPartFeature('anal'),
+                                              icon: Icon(Icons.plus_one)),
+                                          IconButton(
+                                              onPressed: () =>
+                                                  deletePartFeature('anal'),
+                                              icon: Icon(Icons.delete)),
+                                          IconButton(
+                                              onPressed: () =>
+                                                  editingColumn('anal'),
+                                              icon: Icon(Icons.create)),
+                                        ],
+                                      ),
+                                    )
+                            ],
                           ),
-                          IconButton(
-                              onPressed: addPartFeatchAnal,
-                              icon: Icon(Icons.plus_one)),
-                          IconButton(
-                              onPressed: deletePartFeatchAnal,
-                              icon: Icon(Icons.delete)),
-                          IconButton(
-                              onPressed: () {
-                                updateInfoAnal();
-                              },
-                              icon: Icon(Icons.create)),
-                        ],
-                      ))
-                    ],
-                  ),
-                ),
-                Container(
-                  color: Colors.black,
-                  width: 1,
-                  height: double.infinity,
-                ),
-                Expanded(
-                  flex: flexDev,
-                  child: Column(
-                    children: [
-                      (flexAnal == 20 && flexTest == 20) ||
-                              (flexAnal == 20 &&
-                                  flexTest == 1 &&
-                                  flexDev == 1) ||
-                              (flexAnal == 1 && flexTest == 20 && flexDev == 1)
-                          ? IconButton(
-                              onPressed: changeFlexDev,
-                              icon: Icon(Icons.developer_board))
-                          : TextButton(
-                              child: Text(
-                                'Dev',
-                                style: TextStyle(
-                                    overflow: TextOverflow.ellipsis,
-                                    fontSize: 20),
+                        ),
+                        Container(
+                          color: Colors.black,
+                          width: 1,
+                          height: double.infinity,
+                        ),
+
+                        /// Колонка разработки
+                        Expanded(
+                          flex: flexDev,
+                          child: Column(
+                            children: [
+                              (flexAnal == 20 && flexTest == 20) ||
+                                      (flexAnal == 20 &&
+                                          flexTest == 1 &&
+                                          flexDev == 1) ||
+                                      (flexAnal == 1 &&
+                                          flexTest == 20 &&
+                                          flexDev == 1)
+                                  ? IconButton(
+                                      onPressed: () => changeFlex('dev'),
+                                      icon: Icon(Icons.developer_board))
+                                  : TextButton(
+                                      child: Text(
+                                        'Разработка',
+                                        style: TextStyle(
+                                            overflow: TextOverflow.ellipsis,
+                                            fontSize: 20),
+                                      ),
+                                      onPressed: () => changeFlex('dev')),
+                              Container(
+                                height: 1,
+                                color: Colors.black,
                               ),
-                              onPressed: changeFlexDev),
-                      Container(
-                        height: 1,
-                        color: Colors.black,
-                      ),
-                      (flexAnal == 20 && flexTest == 20) ||
-                              (flexAnal == 20 &&
-                                  flexTest == 1 &&
-                                  flexDev == 1) ||
-                              (flexAnal == 1 && flexTest == 20 && flexDev == 1)
-                          ? Text('')
-                          : readDev
-                              ? Expanded(
-                                  flex: 15,
-                                  child: ListView(
-                                    children: [
-                                      Center(
-                                        child: Text(
-                                            '${listFeatch[indexFeatch].dev[indexPartFeatchDev]}'),
-                                      )
-                                    ],
-                                  ),
-                                )
-                              : Column(
-                                  children: [
-                                    TextField(
-                                      controller: controllerDevUpdate,
-                                      maxLines: 35,
-                                    ),
-                                    IconButton(
-                                        onPressed: saveInfoDev,
-                                        icon: Icon(Icons.save))
-                                  ],
-                                ),
-                      Expanded(
-                          child: Row(
-                        children: [
-                          Expanded(
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: listFeatch[indexFeatch].dev.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return TextButton(
-                                    onPressed: () {
-                                      changePartDev(index);
-                                    },
-                                    child: Text('${index + 1}'));
-                              },
-                            ),
+                              (flexAnal == 20 && flexTest == 20) ||
+                                      (flexAnal == 20 &&
+                                          flexTest == 1 &&
+                                          flexDev == 1) ||
+                                      (flexAnal == 1 &&
+                                          flexTest == 20 &&
+                                          flexDev == 1)
+                                  ? Text('')
+                                  : readDev
+                                      ? Expanded(
+                                          flex: 15,
+                                          child: ListView(
+                                            children: [
+                                              Center(
+                                                child: Text(indexCurrentFeature ==
+                                                        null
+                                                    ? 'Выбери фичу'
+                                                    : features[indexCurrentFeature!]
+                                                            .dev[
+                                                        indexCurrentPartDevFeature]),
+                                              )
+                                            ],
+                                          ),
+                                        )
+                                      : Column(
+                                          children: [
+                                            TextField(
+                                              controller: controllerDev,
+                                              maxLines: 35,
+                                            ),
+                                            IconButton(
+                                                onPressed: () {
+                                                  saveEditedColumn('dev');
+                                                },
+                                                icon: Icon(Icons.save))
+                                          ],
+                                        ),
+                              (flexAnal == 20 && flexTest == 20) ||
+                                      (flexAnal == 20 &&
+                                          flexTest == 1 &&
+                                          flexDev == 1) ||
+                                      (flexAnal == 1 &&
+                                          flexTest == 20 &&
+                                          flexDev == 1) ||
+                                      indexCurrentFeature == null
+                                  ? Text('')
+                                  : Expanded(
+                                      child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: ListView.builder(
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount: (indexCurrentFeature ==
+                                                    null)
+                                                ? 1
+                                                : features[indexCurrentFeature!]
+                                                    .dev
+                                                    .length,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              return TextButton(
+                                                  style: ButtonStyle(
+                                                    backgroundColor:
+                                                        WidgetStatePropertyAll(
+                                                            (index ==
+                                                                    indexCurrentPartDevFeature)
+                                                                ? Colors.grey
+                                                                : Colors.white),
+                                                  ),
+                                                  onPressed: () =>
+                                                      changePartFeature(
+                                                          index, 'dev'),
+                                                  child: Text('${index + 1}'));
+                                            },
+                                          ),
+                                        ),
+                                        IconButton(
+                                            onPressed: () =>
+                                                addPartFeature('anal'),
+                                            icon: Icon(Icons.plus_one)),
+                                        IconButton(
+                                            onPressed: () =>
+                                                deletePartFeature('dev'),
+                                            icon: Icon(Icons.delete)),
+                                        IconButton(
+                                            onPressed: () =>
+                                                editingColumn('dev'),
+                                            icon: Icon(Icons.create)),
+                                      ],
+                                    ))
+                            ],
                           ),
-                          IconButton(
-                              onPressed: addPartFeatchDev,
-                              icon: Icon(Icons.plus_one)),
-                          IconButton(
-                              onPressed: deletePartFeatchDev,
-                              icon: Icon(Icons.delete)),
-                          IconButton(
-                              onPressed: () {
-                                updateInfoDev();
-                              },
-                              icon: Icon(Icons.create)),
-                        ],
-                      ))
-                    ],
-                  ),
-                ),
-                Container(
-                  color: Colors.black,
-                  width: 1,
-                  height: double.infinity,
-                ),
-                Expanded(
-                  flex: flexTest,
-                  child: Column(
-                    children: [
-                      (flexAnal == 20 && flexDev == 20) ||
-                              (flexAnal == 20 &&
-                                  flexDev == 1 &&
-                                  flexTest == 1) ||
-                              (flexAnal == 1 && flexDev == 20 && flexTest == 1)
-                          ? IconButton(
-                              onPressed: changeFlexTest,
-                              icon: Icon(Icons.article))
-                          : TextButton(
-                              child: Text(
-                                'Test',
-                                style: TextStyle(
-                                    overflow: TextOverflow.ellipsis,
-                                    fontSize: 20),
+                        ),
+                        Container(
+                          color: Colors.black,
+                          width: 1,
+                          height: double.infinity,
+                        ),
+                        Expanded(
+                          flex: flexTest,
+                          child: Column(
+                            children: [
+                              (flexAnal == 20 && flexDev == 20) ||
+                                      (flexAnal == 20 &&
+                                          flexDev == 1 &&
+                                          flexTest == 1) ||
+                                      (flexAnal == 1 &&
+                                          flexDev == 20 &&
+                                          flexTest == 1)
+                                  ? IconButton(
+                                      onPressed: () => changeFlex('test'),
+                                      icon: Icon(Icons.article))
+                                  : TextButton(
+                                      child: Text(
+                                        'Тестирование',
+                                        style: TextStyle(
+                                            overflow: TextOverflow.ellipsis,
+                                            fontSize: 20),
+                                      ),
+                                      onPressed: () => changeFlex('test')),
+                              Container(
+                                height: 1,
+                                color: Colors.black,
                               ),
-                              onPressed: changeFlexTest),
-                      Container(
-                        height: 1,
-                        color: Colors.black,
-                      ),
-                      (flexAnal == 20 && flexDev == 20) ||
-                              (flexAnal == 20 &&
-                                  flexDev == 1 &&
-                                  flexTest == 1) ||
-                              (flexAnal == 1 && flexDev == 20 && flexTest == 1)
-                          ? const Text('')
-                          : readTest
-                              ? Expanded(
-                                  flex: 15,
-                                  child: ListView(
-                                    children: [
-                                      Center(
-                                        child: Text(
-                                            '${listFeatch[indexFeatch].test[indexPartFeatchTest]}'),
-                                      )
-                                    ],
-                                  ),
-                                )
-                              : Column(
-                                  children: [
-                                    TextField(
-                                      controller: controllerTestUpdate,
-                                      maxLines: 35,
-                                    ),
-                                    IconButton(
-                                        onPressed: saveInfoTest,
-                                        icon: Icon(Icons.save)),
-                                  ],
-                                ),
-                      Expanded(
-                          child: Row(
-                        children: [
-                          Expanded(
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: listFeatch[indexFeatch].test.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return TextButton(
-                                    onPressed: () {
-                                      changePartTest(index);
-                                    },
-                                    child: Text('${index + 1}'));
-                              },
-                            ),
+                              (flexAnal == 20 && flexDev == 20) ||
+                                      (flexAnal == 20 &&
+                                          flexDev == 1 &&
+                                          flexTest == 1) ||
+                                      (flexAnal == 1 &&
+                                          flexDev == 20 &&
+                                          flexTest == 1)
+                                  ? const Text('')
+                                  : readTest
+                                      ? Expanded(
+                                          flex: 15,
+                                          child: ListView(
+                                            children: [
+                                              Center(
+                                                child: Text(indexCurrentFeature ==
+                                                        null
+                                                    ? 'Выбери фичу'
+                                                    : features[indexCurrentFeature!]
+                                                            .test[
+                                                        indexCurrentPartTestFeature]),
+                                              )
+                                            ],
+                                          ),
+                                        )
+                                      : Column(
+                                          children: [
+                                            TextField(
+                                              controller: controllerTest,
+                                              maxLines: 35,
+                                            ),
+                                            IconButton(
+                                                onPressed: () =>
+                                                    saveEditedColumn('test'),
+                                                icon: Icon(Icons.save)),
+                                          ],
+                                        ),
+                              (flexAnal == 20 && flexDev == 20) ||
+                                      (flexAnal == 20 &&
+                                          flexDev == 1 &&
+                                          flexTest == 1) ||
+                                      (flexAnal == 1 &&
+                                          flexDev == 20 &&
+                                          flexTest == 1) ||
+                                      indexCurrentFeature == null
+                                  ? Text('')
+                                  : Expanded(
+                                      child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: ListView.builder(
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount: (indexCurrentFeature ==
+                                                    null)
+                                                ? 1
+                                                : features[indexCurrentFeature!]
+                                                    .test
+                                                    .length,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              return TextButton(
+                                                  style: ButtonStyle(
+                                                    backgroundColor:
+                                                        WidgetStatePropertyAll(
+                                                            (index ==
+                                                                    indexCurrentPartTestFeature)
+                                                                ? Colors.grey
+                                                                : Colors.white),
+                                                  ),
+                                                  onPressed: () =>
+                                                      changePartFeature(
+                                                          index, 'test'),
+                                                  child: Text('${index + 1}'));
+                                            },
+                                          ),
+                                        ),
+                                        IconButton(
+                                            onPressed: () =>
+                                                addPartFeature('test'),
+                                            icon: Icon(Icons.plus_one)),
+                                        IconButton(
+                                            onPressed: () =>
+                                                deletePartFeature('test'),
+                                            icon: Icon(Icons.delete)),
+                                        IconButton(
+                                            onPressed: () =>
+                                                editingColumn('test'),
+                                            icon: Icon(Icons.create)),
+                                      ],
+                                    ))
+                            ],
                           ),
-                          IconButton(
-                              onPressed: addPartFeatchTest,
-                              icon: Icon(Icons.plus_one)),
-                          IconButton(
-                              onPressed: deletePartFeatchTest,
-                              icon: Icon(Icons.delete)),
-                          IconButton(
-                              onPressed: () {
-                                updateInfoTest();
-                              },
-                              icon: Icon(Icons.create)),
-                        ],
-                      ))
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+                ],
+              ),
+            );
+          }
+          return CircularProgressIndicator();
+        });
   }
 }
 
-class Featch {
-  late List<String> anal;
-  late List<String> dev;
-  late List<String> test;
-  late String name;
+class Feature {
+  final List<String> anal;
+  final List<String> dev;
+  final List<String> test;
+  String featureName;
 
-  Featch({
+  Feature({
     required this.anal,
     required this.dev,
     required this.test,
-    required this.name,
+    required this.featureName,
   });
+
+  factory Feature.fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> snapshot,
+    SnapshotOptions? options,
+  ) {
+    final data = snapshot.data();
+    return Feature(
+      featureName: data!['featureName'],
+      anal: List.from(data['anal']),
+      dev: List.from(data['dev']),
+      test: List.from(data['test']),
+    );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      "anal": anal,
+      "dev": dev,
+      "test": test,
+      "featureName": featureName,
+    };
+  }
 }
