@@ -1,5 +1,5 @@
 import 'package:ddd/general_widgets/icon_button_style.dart';
-import 'package:ddd/modelProvider/model.dart';
+import 'package:ddd/model_provider/model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

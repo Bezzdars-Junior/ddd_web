@@ -11,11 +11,7 @@ class LeftColumn extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Expanded(
-          child: Center(
-            child: HeaderLeftColumn(),
-          ),
-        ),
+        const HeaderLeftColumn(),
         Container(
           height: 1,
           color: Colors.black,

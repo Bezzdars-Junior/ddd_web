@@ -1,6 +1,6 @@
-import 'package:ddd/modelProvider/model.dart';
+import 'package:ddd/model_provider/model.dart';
 import 'package:ddd/screens/project_screen/widgets/left_column/left_column.dart';
-import 'package:ddd/screens/project_screen/widgets/table/tableProjectScreen.dart';
+import 'package:ddd/screens/project_screen/widgets/table/table_project_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

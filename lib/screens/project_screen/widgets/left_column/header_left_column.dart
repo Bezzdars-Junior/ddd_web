@@ -1,4 +1,4 @@
-import 'package:ddd/modelProvider/model.dart';
+import 'package:ddd/model_provider/model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,30 +9,34 @@ class HeaderLeftColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<Model>();
-
-    //TODO: убрать отсюда логику
     String nameFeature = (model.indexCurrentFeature == null)
         ? 'Выбери фичу'
         : model.features[model.indexCurrentFeature!].featureName;
     model.controllerFeatureName.text = nameFeature;
-    return model.readNameFeature
-        ? Text(
-            nameFeature,
-            style: const TextStyle(
-              fontSize: 14,
-              overflow: TextOverflow.ellipsis,
-            ),
-          )
-        : Row(
-            children: [
-              Expanded(
-                child: TextField(controller: model.controllerFeatureName),
+    return SizedBox(
+      height: 50,
+      child: Center(
+        child: model.readNameFeature
+            ? Text(
+                nameFeature,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontStyle: FontStyle.italic,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              )
+            : Row(
+                children: [
+                  Expanded(
+                    child: TextField(controller: model.controllerFeatureName),
+                  ),
+                  IconButton(
+                    onPressed: model.saveEditedNameFeature,
+                    icon: const Icon(Icons.check),
+                  ),
+                ],
               ),
-              IconButton(
-                onPressed: model.saveEditedNameFeature,
-                icon: const Icon(Icons.check),
-              ),
-            ],
-          );
+      ),
+    );
   }
 }

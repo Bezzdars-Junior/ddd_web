@@ -1,10 +1,10 @@
-import 'package:ddd/modelProvider/model.dart';
+import 'package:ddd/model_provider/model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class IconButtonStyle extends StatelessWidget {
-  final VoidCallback? func;
-  final IconData? icon;
+  final VoidCallback func;
+  final IconData icon;
 
   /// Общая кнопка с иконкой.
   const IconButtonStyle({
