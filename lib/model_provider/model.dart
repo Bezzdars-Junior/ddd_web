@@ -90,33 +90,36 @@ class Model extends ChangeNotifier {
     }
   }
 
-  // addFeature(context) => showDialog<String>(
-  //       context: context,
-  //       builder: (BuildContext context) => AlertDialog(
-  //         title: const Center(
-  //           child: Text('Создание новой фичи'),
-  //         ),
-  //         content: Container(
-  //           height: 300,
-  //           width: 300,
-  //           child: Column(
-  //             children: [
-  //               SizedBox(height: 20),
-  //               Text('Введите название новой фичи'),
-  //               TextField(controller: controllerNameForNewFeature),
-  //             ],
-  //           ),
-  //         ),
-  //         actions: [
-  //           TextButton(onPressed: saveNewFeature(), child: Text('Save')),
-  //           TextButton(
-  //               onPressed: () {
-  //                 Navigator.of(context).pop();
-  //               },
-  //               child: Text('Cancel'))
-  //         ],
-  //       ),
-  //     );
+  addFeature(context) => showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Center(
+            child: Text('Создание новой фичи'),
+          ),
+          content: SizedBox(
+            height: 300,
+            width: 300,
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                const Text('Введите название новой фичи'),
+                TextField(controller: controllerNameForNewFeature),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => saveNewFeature(context),
+                child: const Text('Save')),
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  controllerNameForNewFeature.text = '';
+                },
+                child: const Text('Cancel'))
+          ],
+        ),
+      );
 
   void deleteCurrentFeature() {
     features.removeAt(indexCurrentFeature!);
@@ -124,13 +127,18 @@ class Model extends ChangeNotifier {
     notifyListeners();
   }
 
-  void saveNewFeature() {
-    features.add(Feature(
+  void saveNewFeature(context) {
+    features.add(
+      Feature(
         anal: [''],
         dev: [''],
         test: [''],
-        featureName: controllerNameForNewFeature.text));
-    //Navigator.of(context).pop();
+        featureName: controllerNameForNewFeature.text,
+        dateTime: DateTime.now().toString(),
+      ),
+    );
+    Navigator.of(context).pop();
+    controllerNameForNewFeature.text = '';
     notifyListeners();
   }
 
@@ -231,6 +239,16 @@ class Model extends ChangeNotifier {
   void saveEditedNameFeature() {
     features[indexCurrentFeature!].featureName = controllerFeatureName.text;
     readNameFeature = true;
+    notifyListeners();
+  }
+
+  void sortListName() {
+    features.sort((a, b) => a.featureName.compareTo(b.featureName));
+    notifyListeners();
+  }
+
+  void sortListTime() {
+    features.sort((a, b) => b.dateTime.compareTo(a.dateTime));
     notifyListeners();
   }
 }

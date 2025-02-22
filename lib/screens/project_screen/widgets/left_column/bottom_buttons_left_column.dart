@@ -13,9 +13,8 @@ class BottomButtonsLeftColumn extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        //TODO: Реализовать эту фичу
         IconButtonStyle(
-          func: () {},
+          func: () => model.addFeature(context),
           icon: Icons.add,
           message: 'Добавить новую фичу',
         ),
