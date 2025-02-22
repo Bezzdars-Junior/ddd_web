@@ -17,12 +17,15 @@ class HeaderLeftColumn extends StatelessWidget {
       height: 50,
       child: Center(
         child: model.readNameFeature
-            ? Text(
-                nameFeature,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontStyle: FontStyle.italic,
-                  overflow: TextOverflow.ellipsis,
+            ? Tooltip(
+                message: nameFeature,
+                child: Text(
+                  nameFeature,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontStyle: FontStyle.italic,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               )
             : Row(

@@ -12,11 +12,17 @@ class ListFeature extends StatelessWidget {
     return ListView.builder(
       itemCount: model.features.length,
       itemBuilder: (BuildContext context, int index) {
-        return TextButton(
-          onPressed: () {
-            model.changeFeature(index);
-          },
-          child: Text(model.features[index].featureName),
+        return Tooltip(
+          message: model.features[index].featureName,
+          child: TextButton(
+            onPressed: () {
+              model.changeFeature(index);
+            },
+            child: Text(
+              model.features[index].featureName,
+              style: const TextStyle(overflow: TextOverflow.ellipsis),
+            ),
+          ),
         );
       },
     );

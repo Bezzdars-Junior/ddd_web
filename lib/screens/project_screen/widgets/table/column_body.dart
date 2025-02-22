@@ -46,6 +46,7 @@ class ColumnBody extends StatelessWidget {
                   IconButtonStyle(
                     func: () => model.saveEditedColumn(nameColumn),
                     icon: icon,
+                    message: 'Сохранить изменения текста',
                   )
                 ],
               );

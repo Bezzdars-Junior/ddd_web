@@ -26,16 +26,20 @@ class HeaderColumn extends StatelessWidget {
           ? IconButtonStyle(
               func: () => model.changeFlex(nameColumn),
               icon: icon,
+              message: 'Раскрыть/свернуть коллонку',
             )
-          : TextButton(
-              child: Text(
-                dataTextNameColumn,
-                style: const TextStyle(
-                  overflow: TextOverflow.ellipsis,
-                  fontSize: 20,
+          : Tooltip(
+              message: 'Раскрыть/свернуть коллонку',
+              child: TextButton(
+                child: Text(
+                  dataTextNameColumn,
+                  style: const TextStyle(
+                    overflow: TextOverflow.ellipsis,
+                    fontSize: 20,
+                  ),
                 ),
+                onPressed: () => model.changeFlex(nameColumn),
               ),
-              onPressed: () => model.changeFlex(nameColumn),
             ),
     );
   }

@@ -9,18 +9,21 @@ class SaveButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<Model>();
-    return TextButton(
-      onPressed: model.saveDataBase,
-      style: const ButtonStyle(
-        backgroundColor:
-            WidgetStatePropertyAll(Color.fromARGB(255, 172, 37, 160)),
-      ),
-      child: const Center(
-        child: Text(
-          'Сохранить изменения',
-          style: TextStyle(
-            color: Colors.white,
-            overflow: TextOverflow.ellipsis,
+    return Tooltip(
+      message: 'Сохранить все изменения в базу данных',
+      child: TextButton(
+        onPressed: model.saveDataBase,
+        style: const ButtonStyle(
+          backgroundColor:
+              WidgetStatePropertyAll(Color.fromARGB(255, 172, 37, 160)),
+        ),
+        child: const Center(
+          child: Text(
+            'Сохранить изменения',
+            style: TextStyle(
+              color: Colors.white,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
       ),

@@ -17,14 +17,17 @@ class BottomButtonsLeftColumn extends StatelessWidget {
         IconButtonStyle(
           func: () {},
           icon: Icons.add,
+          message: 'Добавить новую фичу',
         ),
         IconButtonStyle(
           func: model.deleteCurrentFeature,
           icon: Icons.delete,
+          message: 'Удалить текущую фичу',
         ),
         IconButtonStyle(
           func: model.editingNameFeature,
           icon: Icons.create,
+          message: 'Изменить название текущей фичи',
         ),
       ],
     );

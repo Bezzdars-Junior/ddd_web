@@ -51,14 +51,17 @@ class ColumnFooter extends StatelessWidget {
                 IconButtonStyle(
                   func: () => model.addPartFeature(nameColumn),
                   icon: Icons.add,
+                  message: 'Добавить новую часть коллонки',
                 ),
                 IconButtonStyle(
                   func: () => model.deletePartFeature(nameColumn),
                   icon: Icons.delete,
+                  message: 'Удалить текущую часть коллонки',
                 ),
                 IconButtonStyle(
                   func: () => model.editingColumn(nameColumn),
                   icon: Icons.create,
+                  message: 'Изменить текст коллонки',
                 ),
                 const SizedBox(width: 5),
               ],
