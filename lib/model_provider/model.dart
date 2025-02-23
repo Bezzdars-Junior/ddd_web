@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 class Model extends ChangeNotifier {
   int countFeaturesDataBase = 0;
+
   int flexAnal = 1;
   int flexDev = 1;
   int flexTest = 1;
@@ -21,7 +22,7 @@ class Model extends ChangeNotifier {
   final controllerAnal = TextEditingController();
   final controllerDev = TextEditingController();
   final controllerTest = TextEditingController();
-  final List<Feature> features = [];
+  List<Feature> features = [];
 
   Future<String> initFeature() async {
     if (firstInitial) {
@@ -39,6 +40,8 @@ class Model extends ChangeNotifier {
         if (feature != null) {
           features.add(feature);
         }
+
+        features.sort((a, b) => b.favorite.compareTo(a.favorite));
       }
 
       firstInitial = false;
@@ -135,6 +138,7 @@ class Model extends ChangeNotifier {
         test: [''],
         featureName: controllerNameForNewFeature.text,
         dateTime: DateTime.now().toString(),
+        favorite: 'false',
       ),
     );
     Navigator.of(context).pop();
@@ -243,12 +247,40 @@ class Model extends ChangeNotifier {
   }
 
   void sortListName() {
-    features.sort((a, b) => a.featureName.compareTo(b.featureName));
+    List<Feature> favorites = [];
+    List<Feature> other = [];
+    for (Feature element in features) {
+      if (element.favorite == 'true') {
+        favorites.add(element);
+      } else {
+        other.add(element);
+      }
+    }
+    other.sort((a, b) => a.featureName.compareTo(b.featureName));
+    features = [...favorites, ...other];
     notifyListeners();
   }
 
   void sortListTime() {
-    features.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+    List<Feature> favorites = [];
+    List<Feature> other = [];
+    for (Feature element in features) {
+      if (element.favorite == 'true') {
+        favorites.add(element);
+      } else {
+        other.add(element);
+      }
+    }
+    other.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+    features = [...favorites, ...other];
+    notifyListeners();
+  }
+
+  void addFavorite() {
+    (features[indexCurrentFeature!].favorite == 'false')
+        ? features[indexCurrentFeature!].favorite = 'true'
+        : features[indexCurrentFeature!].favorite = 'false';
+    features.sort((a, b) => b.favorite.compareTo(a.favorite));
     notifyListeners();
   }
 }

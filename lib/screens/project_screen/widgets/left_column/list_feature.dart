@@ -14,14 +14,23 @@ class ListFeature extends StatelessWidget {
       itemBuilder: (BuildContext context, int index) {
         return Tooltip(
           message: model.features[index].featureName,
-          child: TextButton(
-            onPressed: () {
-              model.changeFeature(index);
-            },
-            child: Text(
-              model.features[index].featureName,
-              style: const TextStyle(overflow: TextOverflow.ellipsis),
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: () {
+                    model.changeFeature(index);
+                  },
+                  child: Text(
+                    model.features[index].featureName,
+                    style: const TextStyle(overflow: TextOverflow.ellipsis),
+                  ),
+                ),
+              ),
+              if (model.features[index].favorite == 'true')
+                const Icon(Icons.star),
+            ],
           ),
         );
       },

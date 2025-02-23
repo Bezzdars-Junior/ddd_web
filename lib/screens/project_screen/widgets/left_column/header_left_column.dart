@@ -1,3 +1,4 @@
+import 'package:ddd/general_widgets/icon_button_style.dart';
 import 'package:ddd/model_provider/model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,16 +18,29 @@ class HeaderLeftColumn extends StatelessWidget {
       height: 50,
       child: Center(
         child: model.readNameFeature
-            ? Tooltip(
-                message: nameFeature,
-                child: Text(
-                  nameFeature,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontStyle: FontStyle.italic,
-                    overflow: TextOverflow.ellipsis,
+            ? Row(
+                children: [
+                  Expanded(
+                    child: Center(
+                      child: Tooltip(
+                        message: nameFeature,
+                        child: Text(
+                          nameFeature,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontStyle: FontStyle.italic,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  IconButtonStyle(
+                    func: model.addFavorite,
+                    icon: Icons.star_outline,
+                    message: 'Добавить в избранное',
+                  )
+                ],
               )
             : Row(
                 children: [

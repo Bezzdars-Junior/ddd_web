@@ -6,14 +6,15 @@ class Feature {
   final List<String> test;
   String featureName;
   String dateTime;
+  String favorite;
 
-  Feature({
-    required this.anal,
-    required this.dev,
-    required this.test,
-    required this.featureName,
-    required this.dateTime,
-  });
+  Feature(
+      {required this.anal,
+      required this.dev,
+      required this.test,
+      required this.featureName,
+      required this.dateTime,
+      required this.favorite});
 
   factory Feature.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> snapshot,
@@ -26,6 +27,7 @@ class Feature {
       dev: List.from(data['dev']),
       test: List.from(data['test']),
       dateTime: data['dateTime'],
+      favorite: data['favorite'],
     );
   }
 
@@ -36,6 +38,7 @@ class Feature {
       "test": test,
       "featureName": featureName,
       "dateTime": dateTime,
+      "favorite": favorite,
     };
   }
 }
