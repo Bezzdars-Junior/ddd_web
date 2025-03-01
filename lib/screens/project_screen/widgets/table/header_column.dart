@@ -4,11 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class HeaderColumn extends StatelessWidget {
+  /// Значение [bool] для отображения иконки при сворачивании.
   final bool isFlex;
+
+  /// Иконка при сворачивании коллонки.
   final IconData icon;
+
+  /// Имя колонки (варианты: 'anal', 'dev', 'test').
   final String nameColumn;
+
+  /// Имя в хедере коллонки.
   final String dataTextNameColumn;
 
+  /// Хедер коллонки, содержащий название и иконки с возможностью сворачиваться/разворачиваться.
   const HeaderColumn({
     required this.isFlex,
     required this.icon,

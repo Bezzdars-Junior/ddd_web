@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+/// Главная странница со списком проектов.
 class MainScreen extends StatefulWidget {
+  /// Конструктор [MainScreen].
   const MainScreen({super.key});
 
   @override
@@ -12,14 +14,15 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TextButton(
-              onPressed: () => Navigator.of(context).pushNamed('/project'),
-              child: const Text('Project'))
-        ],
-      )),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextButton(
+                onPressed: () => Navigator.of(context).pushNamed('/project'),
+                child: const Text('Project'))
+          ],
+        ),
+      ),
     );
   }
 }

@@ -4,12 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ColumnFooter extends StatelessWidget {
-  /// Flex при сворачивании, для отображения иконки
+  /// Значение [bool] для отображения иконки при сворачивании.
   final bool isFlex;
+
+  /// Имя колонки (варианты: 'anal', 'dev', 'test').
   final String nameColumn;
+
+  /// Колличество разделов в коллонке.
   final int countIndex;
+
+  /// Индекс текущего раздела коллонки.
   final int indexCurrentPartFeature;
 
+  /// Футтер коллонки, содержащий пагинацию, кнопку добавления/удаления/изменения фичи.
   const ColumnFooter({
     required this.isFlex,
     required this.nameColumn,

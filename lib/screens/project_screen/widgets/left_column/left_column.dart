@@ -6,6 +6,7 @@ import 'package:ddd/screens/project_screen/widgets/left_column/save_button.dart'
 import 'package:flutter/material.dart';
 
 class LeftColumn extends StatelessWidget {
+  /// Левая коллонка со списком фичей.
   const LeftColumn({super.key});
 
   @override

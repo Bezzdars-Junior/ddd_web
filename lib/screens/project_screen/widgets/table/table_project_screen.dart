@@ -5,6 +5,8 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
 
 class TableProjectScreen extends StatelessWidget {
+  /// Три коллонки (Аналитика, Разработка и Тестирование)
+  /// с текстом, названием и кнопками взаимодействия.
   const TableProjectScreen({super.key});
 
   @override

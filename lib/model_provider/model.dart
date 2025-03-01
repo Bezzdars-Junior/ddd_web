@@ -24,6 +24,7 @@ class Model extends ChangeNotifier {
   final controllerTest = TextEditingController();
   List<Feature> features = [];
 
+  /// Запрос на сервер для получения массива с [Feature].
   Future<String> initFeature() async {
     if (firstInitial) {
       final db = FirebaseFirestore.instance;
@@ -51,6 +52,7 @@ class Model extends ChangeNotifier {
     return 'Second initial';
   }
 
+  /// Сохранить данные лежащие в [features] в базу данных Firebase.
   void saveDataBase() async {
     final db = FirebaseFirestore.instance;
     if (countFeaturesDataBase > features.length) {
@@ -70,6 +72,7 @@ class Model extends ChangeNotifier {
     }
   }
 
+  /// Сменить фичу.
   void changeFeature(int index) {
     indexCurrentFeature = index;
     indexCurrentPartAnalFeature = 0;
@@ -78,6 +81,9 @@ class Model extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Функция для свертывания/развертывания коллонки.
+  /// Принимает [nameColumn] типа [String], которое определяет,
+  /// какую коллонку свернуть/развернуть.
   void changeFlex(String nameColumn) {
     if (nameColumn == 'anal') {
       flexAnal == 1 ? flexAnal = 20 : flexAnal = 1;
@@ -93,6 +99,7 @@ class Model extends ChangeNotifier {
     }
   }
 
+  /// Функция вызывающая [AlertDialog] для добавления новой фичи в проект.
   addFeature(context) => showDialog<String>(
         context: context,
         builder: (BuildContext context) => AlertDialog(
@@ -124,12 +131,14 @@ class Model extends ChangeNotifier {
         ),
       );
 
+  /// Функция для удаления текущей фичи.
   void deleteCurrentFeature() {
     features.removeAt(indexCurrentFeature!);
     indexCurrentFeature = 0;
     notifyListeners();
   }
 
+  /// Функция для сохранеия новой фичи для [AlertDialog].
   void saveNewFeature(context) {
     features.add(
       Feature(
@@ -146,6 +155,9 @@ class Model extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Добавить новую часть к коллонкею
+  /// Принимает [nameColumn] типа [String], которое определяет,
+  /// в какую коллонку добавить часть.
   void addPartFeature(String columnName) {
     if (columnName == 'anal') {
       features[indexCurrentFeature!].anal.add('');
@@ -159,6 +171,10 @@ class Model extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Переключиться на другую часть коллонки.
+  /// Принимает [nameColumn] типа [String], которое определяет,
+  /// в какой коллонке переключаем часть.
+  /// И [index] типа [int], которая определяет на какой номер части переключиться.
   void changePartFeature(int index, String columnName) {
     if (columnName == 'anal') {
       indexCurrentPartAnalFeature = index;
@@ -172,6 +188,9 @@ class Model extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Удалить текущую часть коллонки.
+  /// Принимает [nameColumn] типа [String], которое определяет
+  /// в какой коллонке удалить текущую часть.
   void deletePartFeature(String columnName) {
     if (columnName == 'anal') {
       features[indexCurrentFeature!].anal.removeAt(indexCurrentPartAnalFeature);
@@ -197,6 +216,7 @@ class Model extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Функция для отображения [TextField] и изменения текста в коллонке.
   void editingColumn(String columnName) {
     if (columnName == 'anal') {
       readAnal = false;
@@ -216,6 +236,7 @@ class Model extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Функция для сохранения изменений в коллонке.
   void saveEditedColumn(String columnName) {
     if (columnName == 'anal') {
       features[indexCurrentFeature!].anal[indexCurrentPartAnalFeature] =
@@ -235,17 +256,20 @@ class Model extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Функция для отображения [TextField] и изменения текста в названии фичи.
   void editingNameFeature() {
     readNameFeature = false;
     notifyListeners();
   }
 
+  /// Ф-ция для сохранения нового имени фичи.
   void saveEditedNameFeature() {
     features[indexCurrentFeature!].featureName = controllerFeatureName.text;
     readNameFeature = true;
     notifyListeners();
   }
 
+  /// Ф-ция для сортировки списка фичей по имени.
   void sortListName() {
     List<Feature> favorites = [];
     List<Feature> other = [];
@@ -258,9 +282,14 @@ class Model extends ChangeNotifier {
     }
     other.sort((a, b) => a.featureName.compareTo(b.featureName));
     features = [...favorites, ...other];
+    indexCurrentFeature = 0;
+    indexCurrentPartAnalFeature = 0;
+    indexCurrentPartDevFeature = 0;
+    indexCurrentPartTestFeature = 0;
     notifyListeners();
   }
 
+  /// Ф-ция для сортировки списка фичей по времени.
   void sortListTime() {
     List<Feature> favorites = [];
     List<Feature> other = [];
@@ -273,14 +302,23 @@ class Model extends ChangeNotifier {
     }
     other.sort((a, b) => b.dateTime.compareTo(a.dateTime));
     features = [...favorites, ...other];
+    indexCurrentFeature = 0;
+    indexCurrentPartAnalFeature = 0;
+    indexCurrentPartDevFeature = 0;
+    indexCurrentPartTestFeature = 0;
     notifyListeners();
   }
 
+  /// Добавить/либо удалить признак "Избранного".
   void addFavorite() {
     (features[indexCurrentFeature!].favorite == 'false')
         ? features[indexCurrentFeature!].favorite = 'true'
         : features[indexCurrentFeature!].favorite = 'false';
     features.sort((a, b) => b.favorite.compareTo(a.favorite));
+    indexCurrentFeature = 0;
+    indexCurrentPartAnalFeature = 0;
+    indexCurrentPartDevFeature = 0;
+    indexCurrentPartTestFeature = 0;
     notifyListeners();
   }
 }

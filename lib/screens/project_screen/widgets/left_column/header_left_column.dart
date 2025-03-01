@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class HeaderLeftColumn extends StatelessWidget {
-  /// Хедер виджета [LeftColumn].
+  /// Хедер виджета [LeftColumn]. Содержит в себе название фичи,
+  /// кнопку избранного и [TextField] для изменения названия.
   const HeaderLeftColumn({super.key});
 
   @override

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ListFeature extends StatelessWidget {
-  ///  Боди виджета [LeftColumn]. Список с доступными фичами проекта.
+  ///  Тело виджета [LeftColumn]. Содержит список с доступными фичами проекта.
   const ListFeature({super.key});
 
   @override

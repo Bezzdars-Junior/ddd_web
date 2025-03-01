@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ButtonsSort extends StatelessWidget {
+  /// Кнопки для сортировки списка фичей по имени и времени.
   const ButtonsSort({super.key});
 
   @override

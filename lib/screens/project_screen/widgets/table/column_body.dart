@@ -4,13 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ColumnBody extends StatelessWidget {
+  /// Значение [bool] для отображения иконки при сворачивании.
   final bool isFlex;
+
+  /// [bool] значение чтобы перейти на изменение коллонки.
   final bool isReadNameColumn;
+
+  /// [TextEditingController] для контроллера, чтобы изменять текст.
   final TextEditingController controller;
+
+  /// Имя колонки (варианты: 'anal', 'dev', 'test').
   final String nameColumn;
+
+  /// Markdown [Widget] для отображения текста. (варианты: [MarkdownBody] , [Text]).
   final Widget markdown;
+
+  /// Иконка при сворачивании коллонки.
   final IconData icon;
 
+  /// Тело коллонки, содержащей текст коллонки и [TextField] для изменния текста.
   const ColumnBody({
     required this.isFlex,
     required this.isReadNameColumn,

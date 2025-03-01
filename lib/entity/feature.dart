@@ -1,5 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Объект [Feature], который хранит поля.
+/// [anal] - массив частей аналитиики.
+/// [dev] - массив частей разработки.
+/// [test] - массив частей тестирования.
+/// [featureName] - название фичи.
+/// [dateTime] - время создания фичи.
+/// [favorite] - признак фичи, который показывает избранная фича или нет.
 class Feature {
   final List<String> anal;
   final List<String> dev;
@@ -8,6 +15,7 @@ class Feature {
   String dateTime;
   String favorite;
 
+  /// Конструктор класса [Feature].
   Feature(
       {required this.anal,
       required this.dev,

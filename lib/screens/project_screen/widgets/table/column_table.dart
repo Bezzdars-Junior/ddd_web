@@ -25,7 +25,7 @@ class ColumnTable extends StatelessWidget {
   /// [TextEditingController] для контроллера, чтобы изменять текст.
   final TextEditingController controller;
 
-  /// Markdown [Widget] для отображения текста. (варианты: '[MarkdownBody]' , '[Text]').
+  /// Markdown [Widget] для отображения текста. (варианты: [MarkdownBody] , [Text]).
   final Widget markdown;
 
   /// Колличество разделов в коллонке.
@@ -34,6 +34,7 @@ class ColumnTable extends StatelessWidget {
   /// Индекс текущего раздела коллонки.
   final int indexCurrentPartFeature;
 
+  /// Коллонка таблицы.
   const ColumnTable({
     required this.nameColumn,
     required this.isFlex,

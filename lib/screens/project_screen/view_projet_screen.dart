@@ -4,7 +4,9 @@ import 'package:ddd/screens/project_screen/widgets/table/table_project_screen.da
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+/// Виджет с версткой страницы проекта.
 class ViewProjectScreen extends StatelessWidget {
+  /// Коструктор [ViewProjectScreen].
   const ViewProjectScreen({
     super.key,
   });

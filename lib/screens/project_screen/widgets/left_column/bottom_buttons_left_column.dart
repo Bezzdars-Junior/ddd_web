@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class BottomButtonsLeftColumn extends StatelessWidget {
-  /// Футер [ColumnLeft]. Кнопки для взаимодействия с фичами.
+  /// Футер [ColumnLeft]. Содержит кнопки для
+  /// добавления/удаления/изменения_названия фичей.
   const BottomButtonsLeftColumn({super.key});
 
   @override
