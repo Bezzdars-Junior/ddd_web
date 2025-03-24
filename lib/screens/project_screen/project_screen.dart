@@ -1,4 +1,4 @@
-import 'package:ddd/model_provider/model.dart';
+import 'package:ddd/model_provider/model_project.dart';
 import 'package:ddd/screens/project_screen/view_projet_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +16,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => Model(),
+      create: (context) => ModelProject(),
       child: const ViewProjectScreen(),
     );
   }

@@ -1,4 +1,4 @@
-import 'package:ddd/model_provider/model.dart';
+import 'package:ddd/model_provider/model_project.dart';
 import 'package:ddd/screens/project_screen/widgets/left_column/left_column.dart';
 import 'package:ddd/screens/project_screen/widgets/table/table_project_screen.dart';
 import 'package:flutter/material.dart';
@@ -13,17 +13,18 @@ class ViewProjectScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<Model>();
+    final model = context.watch<ModelProject>();
+    final nameProject = ModalRoute.of(context)?.settings.arguments;
     return FutureBuilder(
-        future: model.initFeature(),
+        future: model.initFeature(nameProject.toString()),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             return Scaffold(
               backgroundColor: Colors.white,
               body: Row(
                 children: [
-                  const Expanded(
-                    child: LeftColumn(),
+                  Expanded(
+                    child: LeftColumn(nameProject: nameProject.toString()),
                   ),
                   Container(
                     color: Colors.black,

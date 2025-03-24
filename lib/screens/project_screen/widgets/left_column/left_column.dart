@@ -6,8 +6,10 @@ import 'package:ddd/screens/project_screen/widgets/left_column/save_button.dart'
 import 'package:flutter/material.dart';
 
 class LeftColumn extends StatelessWidget {
+  final String nameProject;
+
   /// Левая коллонка со списком фичей.
-  const LeftColumn({super.key});
+  const LeftColumn({required this.nameProject, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,7 @@ class LeftColumn extends StatelessWidget {
         const Expanded(
           child: ListFeature(),
         ),
-        const SaveButton(),
+        SaveButton(nameProject: nameProject),
         const BottomButtonsLeftColumn()
       ],
     );

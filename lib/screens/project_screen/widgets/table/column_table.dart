@@ -1,4 +1,4 @@
-import 'package:ddd/model_provider/model.dart';
+import 'package:ddd/model_provider/model_project.dart';
 import 'package:ddd/screens/project_screen/widgets/table/column_body.dart';
 import 'package:ddd/screens/project_screen/widgets/table/column_footer.dart';
 import 'package:ddd/screens/project_screen/widgets/table/header_column.dart';
@@ -50,7 +50,7 @@ class ColumnTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<Model>();
+    final model = context.watch<ModelProject>();
     return Column(
       children: [
         HeaderColumn(

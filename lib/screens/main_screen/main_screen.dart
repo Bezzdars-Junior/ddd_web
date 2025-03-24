@@ -1,4 +1,8 @@
+import 'package:ddd/model_provider/model_main.dart';
+import 'package:ddd/screens/main_screen/widgets/body_main_screen.dart';
+import 'package:ddd/screens/main_screen/widgets/footer_main_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 /// Главная странница со списком проектов.
 class MainScreen extends StatefulWidget {
@@ -12,15 +16,20 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextButton(
-                onPressed: () => Navigator.of(context).pushNamed('/project'),
-                child: const Text('Project'))
-          ],
+    return ChangeNotifierProvider(
+      create: (context) => ModelMain(),
+      child: const Scaffold(
+        body: Center(
+          child: Column(
+            children: [
+              Text(
+                'Список проектов:',
+                style: TextStyle(fontSize: 32),
+              ),
+              Expanded(child: BodyMainScreen()),
+              FooterMainScreen()
+            ],
+          ),
         ),
       ),
     );

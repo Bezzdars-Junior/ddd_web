@@ -1,4 +1,4 @@
-import 'package:ddd/model_provider/model.dart';
+import 'package:ddd/model_provider/model_project.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,7 +17,7 @@ class IconButtonStyle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<Model>();
+    final model = context.watch<ModelProject>();
     return Tooltip(
       message: message,
       child: IconButton(

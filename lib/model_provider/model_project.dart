@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ddd/entity/feature.dart';
 import 'package:flutter/material.dart';
 
-class Model extends ChangeNotifier {
+class ModelProject extends ChangeNotifier {
   int countFeaturesDataBase = 0;
 
   int flexAnal = 1;
@@ -25,15 +25,15 @@ class Model extends ChangeNotifier {
   List<Feature> features = [];
 
   /// Запрос на сервер для получения массива с [Feature].
-  Future<String> initFeature() async {
+  Future<String> initFeature(String nameProject) async {
     if (firstInitial) {
       final db = FirebaseFirestore.instance;
 
-      await db.collection('features').get().then((docs) {
+      await db.collection(nameProject).get().then((docs) {
         countFeaturesDataBase = docs.docs.length;
       });
       for (int i = 0; i < countFeaturesDataBase; i++) {
-        final ref = db.collection('features').doc('$i').withConverter(
+        final ref = db.collection(nameProject).doc('$i').withConverter(
             fromFirestore: Feature.fromFirestore,
             toFirestore: (Feature feature, _) => feature.toFirestore());
         final docSnap = await ref.get();
@@ -53,16 +53,16 @@ class Model extends ChangeNotifier {
   }
 
   /// Сохранить данные лежащие в [features] в базу данных Firebase.
-  void saveDataBase() async {
+  void saveDataBase(String nameProject) async {
     final db = FirebaseFirestore.instance;
     if (countFeaturesDataBase > features.length) {
       for (int i = features.length; i <= countFeaturesDataBase; i++) {
-        db.collection('features').doc('$i').delete();
+        db.collection(nameProject).doc('$i').delete();
       }
     }
     for (int i = 0; i < features.length; i++) {
       final docRef = db
-          .collection('features')
+          .collection(nameProject)
           .withConverter(
             fromFirestore: Feature.fromFirestore,
             toFirestore: (Feature feature, _) => feature.toFirestore(),

@@ -1,4 +1,4 @@
-import 'package:ddd/model_provider/model.dart';
+import 'package:ddd/model_provider/model_project.dart';
 import 'package:ddd/screens/project_screen/widgets/table/column_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -11,7 +11,7 @@ class TableProjectScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<Model>();
+    final model = context.watch<ModelProject>();
     final bool isFlexAnal = (model.flexDev == 20 && model.flexTest == 20) ||
         (model.flexDev == 20 && model.flexTest == 1 && model.flexAnal == 1) ||
         (model.flexDev == 1 && model.flexTest == 20 && model.flexAnal == 1);

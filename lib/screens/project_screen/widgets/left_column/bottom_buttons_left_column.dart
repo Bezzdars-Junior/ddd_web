@@ -1,5 +1,5 @@
 import 'package:ddd/general_widgets/icon_button_style.dart';
-import 'package:ddd/model_provider/model.dart';
+import 'package:ddd/model_provider/model_project.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,7 +10,7 @@ class BottomButtonsLeftColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<Model>();
+    final model = context.watch<ModelProject>();
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
