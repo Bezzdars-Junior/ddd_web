@@ -16,7 +16,6 @@ class ButtonsSortProjects extends StatelessWidget {
         IconButton(onPressed: model.sortName, icon: const Icon(Icons.abc)),
         IconButton(
             onPressed: model.sortTime, icon: const Icon(Icons.lock_clock)),
-            IconButton(onPressed: model.test, icon: const Icon(Icons.clean_hands))
       ],
     );
   }

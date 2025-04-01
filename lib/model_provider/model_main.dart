@@ -8,6 +8,7 @@ class ModelMain extends ChangeNotifier {
   bool firstInitial = true;
   int countProjectsDataBase = 0;
   TextEditingController controllerNameNewProject = TextEditingController();
+  TextEditingController controllerEditedNameProject = TextEditingController();
 
   Future<String> initProjects() async {
     if (firstInitial) {
@@ -74,10 +75,12 @@ class ModelMain extends ChangeNotifier {
         );
     await docRef
         .add(Project(
-            projectName: controllerNameNewProject.text,
-            favorite: 'false',
-            dataTime: DateTime.now().toString(),
-            id: ''))
+      projectName: controllerNameNewProject.text,
+      favorite: 'false',
+      dataTime: DateTime.now().toString(),
+      id: '',
+      viewName: controllerNameNewProject.text,
+    ))
         .then((documentSnapshot) {
       id = documentSnapshot.id;
       db
@@ -86,10 +89,12 @@ class ModelMain extends ChangeNotifier {
           .update({'id': documentSnapshot.id});
     });
     projects.add(Project(
-        projectName: controllerNameNewProject.text,
-        favorite: 'false',
-        dataTime: DateTime.now().toString(),
-        id: id));
+      projectName: controllerNameNewProject.text,
+      favorite: 'false',
+      dataTime: DateTime.now().toString(),
+      id: id,
+      viewName: controllerNameNewProject.text,
+    ));
     notifyListeners();
     Navigator.of(context).pop();
 
@@ -135,7 +140,7 @@ class ModelMain extends ChangeNotifier {
 
   void addFavorite(String idProject, int index) {
     final db = FirebaseFirestore.instance;
-    db.collection('projects').doc(idProject).update({"favorite": 'true'});
+    // db.collection('projects').doc(idProject).update({"favorite": 'true'});
 
     if (projects[index].favorite == 'false') {
       projects[index].favorite = 'true';
@@ -159,7 +164,7 @@ class ModelMain extends ChangeNotifier {
         other.add(element);
       }
     }
-    other.sort((a, b) => a.projectName.compareTo(b.projectName));
+    other.sort((a, b) => a.viewName.compareTo(b.viewName));
     projects = [...favorites, ...other];
 
     notifyListeners();
@@ -180,11 +185,54 @@ class ModelMain extends ChangeNotifier {
     notifyListeners();
   }
 
-  void test() {
+  void renameProjectAlertDialog(
+      {required BuildContext context,
+      required String idProject,
+      required String projectBDname,
+      required String currentName,
+      required int index}) {
+    controllerEditedNameProject.text = currentName;
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Center(
+          child: Text('Переименовать фичу'),
+        ),
+        content: SizedBox(
+          height: 300,
+          width: 300,
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              const Text('Введите новое имя проекта'),
+              TextField(controller: controllerEditedNameProject),
+              Text('ID проекта в БД: ${projectBDname}')
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => renameProject(context, idProject, index),
+              child: const Text('Save')),
+          TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                controllerEditedNameProject.text = '';
+              },
+              child: const Text('Cancel'))
+        ],
+      ),
+    );
+  }
+
+  void renameProject(BuildContext context, String idProject, int index) {
     final db = FirebaseFirestore.instance;
     db
         .collection('projects')
-        .doc("snBfcpXEz5aKICqObeyO")
-        .update({'id': "snBfcpXEz5aKICqObeyO"});
+        .doc(idProject)
+        .update({"viewName": controllerEditedNameProject.text});
+    projects[index].viewName = controllerEditedNameProject.text;
+    Navigator.of(context).pop();
+    notifyListeners();
   }
 }

@@ -5,13 +5,16 @@ class Project {
   String favorite;
   String dataTime;
   String id;
+  String viewName;
 
   /// Конструктор класса [Feature].
-  Project(
-      {required this.projectName,
-      required this.favorite,
-      required this.dataTime,
-      required this.id});
+  Project({
+    required this.projectName,
+    required this.favorite,
+    required this.dataTime,
+    required this.id,
+    required this.viewName,
+  });
 
   factory Project.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> snapshot,
@@ -23,6 +26,7 @@ class Project {
       favorite: data['favorite'],
       dataTime: data['dataTime'],
       id: data['id'],
+      viewName: data['viewName'],
     );
   }
 
@@ -32,6 +36,7 @@ class Project {
       "favorite": favorite,
       "dataTime": dataTime,
       "id": id,
+      "viewName": viewName,
     };
   }
 }

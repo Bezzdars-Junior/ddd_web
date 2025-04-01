@@ -25,8 +25,18 @@ class BodyMainScreen extends StatelessWidget {
                           Navigator.of(context).pushNamed('/project',
                               arguments: model.projects[index].projectName);
                         },
-                        child: Text(model.projects[index].projectName),
+                        child: Text(model.projects[index].viewName),
                       ),
+                      IconButton(
+                          onPressed: () => model.renameProjectAlertDialog(
+                                context: context,
+                                idProject: model.projects[index].id,
+                                projectBDname:
+                                    model.projects[index].projectName,
+                                currentName: model.projects[index].viewName,
+                                index: index,
+                              ),
+                          icon: const Icon(Icons.create)),
                       IconButton(
                           onPressed: () => model.deleteProject(
                                 idProject: model.projects[index].id,
