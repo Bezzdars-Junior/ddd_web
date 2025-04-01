@@ -28,10 +28,15 @@ class BodyMainScreen extends StatelessWidget {
                         child: Text(model.projects[index].projectName),
                       ),
                       IconButton(
-                          onPressed: () => model.deleteProject(index),
+                          onPressed: () => model.deleteProject(
+                                idProject: model.projects[index].id,
+                                projectName: model.projects[index].projectName,
+                                index: index,
+                              ),
                           icon: const Icon(Icons.delete)),
                       IconButton(
-                          onPressed: () => model.addFavorite(index),
+                          onPressed: () => model.addFavorite(
+                              model.projects[index].id, index),
                           icon: Icon((model.projects[index].favorite == 'true')
                               ? Icons.star
                               : Icons.star_outline))

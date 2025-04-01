@@ -12,22 +12,22 @@ class ModelMain extends ChangeNotifier {
   Future<String> initProjects() async {
     if (firstInitial) {
       final db = FirebaseFirestore.instance;
-      await db.collection('projects').get().then((docs) {
-        countProjectsDataBase = docs.docs.length;
-      });
-      for (int i = 0; i < countProjectsDataBase; i++) {
-        final ref = db.collection('projects').doc('$i').withConverter(
+      await db
+          .collection("projects")
+          .withConverter(
             fromFirestore: Project.fromFirestore,
-            toFirestore: (Project projects, _) => projects.toFirestore());
-        final docSnap = await ref.get();
-        final project = docSnap.data();
-        if (project != null) {
-          projects.add(project);
-        }
-      }
+            toFirestore: (Project project, _) => project.toFirestore(),
+          )
+          .get()
+          .then(
+        (querySnapshot) {
+          for (var docSnapshot in querySnapshot.docs) {
+            projects.add(docSnapshot.data());
+          }
+        },
+      );
       projects.sort((a, b) => b.favorite.compareTo(a.favorite));
       firstInitial = false;
-
       return 'Data Loaded';
     }
     return 'Second initial';
@@ -52,7 +52,7 @@ class ModelMain extends ChangeNotifier {
           ),
           actions: [
             TextButton(
-                onPressed: () => saveNewFeature(context),
+                onPressed: () => saveNewProject(context),
                 child: const Text('Save')),
             TextButton(
                 onPressed: () {
@@ -64,21 +64,36 @@ class ModelMain extends ChangeNotifier {
         ),
       );
 
-  void saveNewFeature(context) async {
+  void saveNewProject(context) async {
+    /// Добавляем проект в базу данных
     final db = FirebaseFirestore.instance;
-    projects.add(
-        Project(projectName: controllerNameNewProject.text, favorite: 'false'));
-    Navigator.of(context).pop();
-    notifyListeners();
-    final docRef = db
-        .collection('projects')
-        .withConverter(
+    late String id;
+    final docRef = db.collection('projects').withConverter(
           fromFirestore: Project.fromFirestore,
           toFirestore: (Project project, _) => project.toFirestore(),
-        )
-        .doc('${projects.length - 1}');
-    await docRef.set(
-        Project(projectName: controllerNameNewProject.text, favorite: 'false'));
+        );
+    await docRef
+        .add(Project(
+            projectName: controllerNameNewProject.text,
+            favorite: 'false',
+            dataTime: DateTime.now().toString(),
+            id: ''))
+        .then((documentSnapshot) {
+      id = documentSnapshot.id;
+      db
+          .collection('projects')
+          .doc(documentSnapshot.id)
+          .update({'id': documentSnapshot.id});
+    });
+    projects.add(Project(
+        projectName: controllerNameNewProject.text,
+        favorite: 'false',
+        dataTime: DateTime.now().toString(),
+        id: id));
+    notifyListeners();
+    Navigator.of(context).pop();
+
+    /// Создаем пустой проект в базе данных
     final docRefProject = db
         .collection(controllerNameNewProject.text)
         .withConverter(
@@ -96,9 +111,12 @@ class ModelMain extends ChangeNotifier {
     controllerNameNewProject.text = '';
   }
 
-  void deleteProject(int index) {
+  void deleteProject(
+      {required String idProject,
+      required String projectName,
+      required int index}) {
     final db = FirebaseFirestore.instance;
-    db.collection(projects[index].projectName).get().then((snapshot) {
+    db.collection(projectName).get().then((snapshot) {
       for (DocumentSnapshot ds in snapshot.docs) {
         ds.reference.delete();
       }
@@ -109,35 +127,64 @@ class ModelMain extends ChangeNotifier {
           fromFirestore: Project.fromFirestore,
           toFirestore: (Project project, _) => project.toFirestore(),
         )
-        .doc('$index');
+        .doc(idProject);
     docRef.delete();
     projects.removeAt(index);
     notifyListeners();
   }
 
-  void addFavorite(int index) {
+  void addFavorite(String idProject, int index) {
     final db = FirebaseFirestore.instance;
-    db.collection('projects').doc('$index').update({"favorite": 'true'});
+    db.collection('projects').doc(idProject).update({"favorite": 'true'});
 
     if (projects[index].favorite == 'false') {
       projects[index].favorite = 'true';
-      db.collection('projects').doc('$index').update({"favorite": 'true'});
+      db.collection('projects').doc(idProject).update({"favorite": 'true'});
     } else {
       projects[index].favorite = 'false';
-      db.collection('projects').doc('$index').update({"favorite": 'false'});
+      db.collection('projects').doc(idProject).update({"favorite": 'false'});
     }
 
     projects.sort((a, b) => b.favorite.compareTo(a.favorite));
-    for (int i = 0; i < projects.length; i++) {
-      db
-          .collection('projects')
-          .withConverter(
-            fromFirestore: Project.fromFirestore,
-            toFirestore: (Project project, _) => project.toFirestore(),
-          )
-          .doc('$i')
-          .set(projects[i]);
-    }
     notifyListeners();
+  }
+
+  void sortName() {
+    List<Project> favorites = [];
+    List<Project> other = [];
+    for (Project element in projects) {
+      if (element.favorite == 'true') {
+        favorites.add(element);
+      } else {
+        other.add(element);
+      }
+    }
+    other.sort((a, b) => a.projectName.compareTo(b.projectName));
+    projects = [...favorites, ...other];
+
+    notifyListeners();
+  }
+
+  void sortTime() {
+    List<Project> favorites = [];
+    List<Project> other = [];
+    for (Project element in projects) {
+      if (element.favorite == 'true') {
+        favorites.add(element);
+      } else {
+        other.add(element);
+      }
+    }
+    other.sort((a, b) => b.dataTime.compareTo(a.dataTime));
+    projects = [...favorites, ...other];
+    notifyListeners();
+  }
+
+  void test() {
+    final db = FirebaseFirestore.instance;
+    db
+        .collection('projects')
+        .doc("snBfcpXEz5aKICqObeyO")
+        .update({'id': "snBfcpXEz5aKICqObeyO"});
   }
 }

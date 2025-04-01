@@ -1,5 +1,6 @@
 import 'package:ddd/model_provider/model_main.dart';
 import 'package:ddd/screens/main_screen/widgets/body_main_screen.dart';
+import 'package:ddd/screens/main_screen/widgets/buttons_sort.dart';
 import 'package:ddd/screens/main_screen/widgets/footer_main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +27,7 @@ class _MainScreenState extends State<MainScreen> {
                 'Список проектов:',
                 style: TextStyle(fontSize: 32),
               ),
+              ButtonsSortProjects(),
               Expanded(child: BodyMainScreen()),
               FooterMainScreen()
             ],
