@@ -1,9 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+///Объект [Project], который хранит поля:
+/// [projectName] - хранит имя коллекции из БД.
+/// [favorite] - признак фичи, который показывает избранная фича или нет.
+/// [dateTime] - время создания проекта.
+/// [id] - айди проекта.
+/// [viewName] - имя, которое видно на экране со списком проектов.
 class Project {
   String projectName;
   String favorite;
-  String dataTime;
+  String dateTime;
   String id;
   String viewName;
 
@@ -11,11 +17,12 @@ class Project {
   Project({
     required this.projectName,
     required this.favorite,
-    required this.dataTime,
+    required this.dateTime,
     required this.id,
     required this.viewName,
   });
 
+  /// метод для преобразования JSON в объект [Project].
   factory Project.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> snapshot,
     SnapshotOptions? options,
@@ -24,17 +31,18 @@ class Project {
     return Project(
       projectName: data!['projectName'],
       favorite: data['favorite'],
-      dataTime: data['dataTime'],
+      dateTime: data['dataTime'],
       id: data['id'],
       viewName: data['viewName'],
     );
   }
 
+  /// метод для преобразования объекта [Project] в JSON.
   Map<String, dynamic> toFirestore() {
     return {
       "projectName": projectName,
       "favorite": favorite,
-      "dataTime": dataTime,
+      "dataTime": dateTime,
       "id": id,
       "viewName": viewName,
     };

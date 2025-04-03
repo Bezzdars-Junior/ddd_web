@@ -1,8 +1,10 @@
 import 'package:ddd/model_provider/model_main.dart';
+import 'package:ddd/screens/main_screen/widgets/list_projects.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class BodyMainScreen extends StatelessWidget {
+  /// Body со списком проектов на главной странице приложения.
   const BodyMainScreen({
     super.key,
   });
@@ -14,45 +16,7 @@ class BodyMainScreen extends StatelessWidget {
         future: model.initProjects(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
-            return ListView.builder(
-                itemCount: model.projects.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pushNamed('/project',
-                              arguments: model.projects[index].projectName);
-                        },
-                        child: Text(model.projects[index].viewName),
-                      ),
-                      IconButton(
-                          onPressed: () => model.renameProjectAlertDialog(
-                                context: context,
-                                idProject: model.projects[index].id,
-                                projectBDname:
-                                    model.projects[index].projectName,
-                                currentName: model.projects[index].viewName,
-                                index: index,
-                              ),
-                          icon: const Icon(Icons.create)),
-                      IconButton(
-                          onPressed: () => model.deleteProject(
-                                idProject: model.projects[index].id,
-                                projectName: model.projects[index].projectName,
-                                index: index,
-                              ),
-                          icon: const Icon(Icons.delete)),
-                      IconButton(
-                          onPressed: () => model.addFavorite(
-                              model.projects[index].id, index),
-                          icon: Icon((model.projects[index].favorite == 'true')
-                              ? Icons.star
-                              : Icons.star_outline))
-                    ],
-                  );
-                });
+            return const ListProjects();
           }
           return const CircularProgressIndicator();
         });

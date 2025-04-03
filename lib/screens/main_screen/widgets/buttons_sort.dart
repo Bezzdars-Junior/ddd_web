@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ButtonsSortProjects extends StatelessWidget {
+  /// Виджет с кнопками для сортировки списка фичей.
   const ButtonsSortProjects({
     super.key,
   });

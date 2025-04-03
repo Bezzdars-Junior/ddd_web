@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class FooterMainScreen extends StatelessWidget {
+  /// Footer главное страницы приложения, где хранится кнопка для добавления проекта.
   const FooterMainScreen({super.key});
 
   @override

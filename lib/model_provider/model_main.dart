@@ -10,6 +10,7 @@ class ModelMain extends ChangeNotifier {
   TextEditingController controllerNameNewProject = TextEditingController();
   TextEditingController controllerEditedNameProject = TextEditingController();
 
+  /// метод для получения списка [Project] из БД.
   Future<String> initProjects() async {
     if (firstInitial) {
       final db = FirebaseFirestore.instance;
@@ -34,6 +35,7 @@ class ModelMain extends ChangeNotifier {
     return 'Second initial';
   }
 
+  /// [AlertDialog] для добавления нового проекта.
   addProject(context) => showDialog<String>(
         context: context,
         builder: (BuildContext context) => AlertDialog(
@@ -65,8 +67,8 @@ class ModelMain extends ChangeNotifier {
         ),
       );
 
+  /// Сохранить новый проект в БД.
   void saveNewProject(context) async {
-    /// Добавляем проект в базу данных
     final db = FirebaseFirestore.instance;
     late String id;
     final docRef = db.collection('projects').withConverter(
@@ -77,7 +79,7 @@ class ModelMain extends ChangeNotifier {
         .add(Project(
       projectName: controllerNameNewProject.text,
       favorite: 'false',
-      dataTime: DateTime.now().toString(),
+      dateTime: DateTime.now().toString(),
       id: '',
       viewName: controllerNameNewProject.text,
     ))
@@ -91,14 +93,12 @@ class ModelMain extends ChangeNotifier {
     projects.add(Project(
       projectName: controllerNameNewProject.text,
       favorite: 'false',
-      dataTime: DateTime.now().toString(),
+      dateTime: DateTime.now().toString(),
       id: id,
       viewName: controllerNameNewProject.text,
     ));
     notifyListeners();
     Navigator.of(context).pop();
-
-    /// Создаем пустой проект в базе данных
     final docRefProject = db
         .collection(controllerNameNewProject.text)
         .withConverter(
@@ -116,12 +116,10 @@ class ModelMain extends ChangeNotifier {
     controllerNameNewProject.text = '';
   }
 
-  void deleteProject(
-      {required String idProject,
-      required String projectName,
-      required int index}) {
+  /// Удалить проект из БД.
+  void deleteProject({required Project project, required int index}) {
     final db = FirebaseFirestore.instance;
-    db.collection(projectName).get().then((snapshot) {
+    db.collection(project.projectName).get().then((snapshot) {
       for (DocumentSnapshot ds in snapshot.docs) {
         ds.reference.delete();
       }
@@ -132,16 +130,15 @@ class ModelMain extends ChangeNotifier {
           fromFirestore: Project.fromFirestore,
           toFirestore: (Project project, _) => project.toFirestore(),
         )
-        .doc(idProject);
+        .doc(project.id);
     docRef.delete();
     projects.removeAt(index);
     notifyListeners();
   }
 
-  void addFavorite(String idProject, int index) {
+  /// Изменить признак [favorite] у проекта.
+  void switchFavorite(String idProject, int index) {
     final db = FirebaseFirestore.instance;
-    // db.collection('projects').doc(idProject).update({"favorite": 'true'});
-
     if (projects[index].favorite == 'false') {
       projects[index].favorite = 'true';
       db.collection('projects').doc(idProject).update({"favorite": 'true'});
@@ -154,6 +151,7 @@ class ModelMain extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Отсортировать список проектов по имени.
   void sortName() {
     List<Project> favorites = [];
     List<Project> other = [];
@@ -170,6 +168,7 @@ class ModelMain extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Отсортировать список проектов по времени создания.
   void sortTime() {
     List<Project> favorites = [];
     List<Project> other = [];
@@ -180,18 +179,17 @@ class ModelMain extends ChangeNotifier {
         other.add(element);
       }
     }
-    other.sort((a, b) => b.dataTime.compareTo(a.dataTime));
+    other.sort((a, b) => b.dateTime.compareTo(a.dateTime));
     projects = [...favorites, ...other];
     notifyListeners();
   }
 
-  void renameProjectAlertDialog(
+  /// [AlertDialog] для переименование проекта.
+  void renameProject(
       {required BuildContext context,
-      required String idProject,
-      required String projectBDname,
-      required String currentName,
-      required int index}) {
-    controllerEditedNameProject.text = currentName;
+      required int index,
+      required Project project}) {
+    controllerEditedNameProject.text = project.viewName;
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -206,13 +204,13 @@ class ModelMain extends ChangeNotifier {
               const SizedBox(height: 20),
               const Text('Введите новое имя проекта'),
               TextField(controller: controllerEditedNameProject),
-              Text('ID проекта в БД: ${projectBDname}')
+              Text('ID проекта в БД: ${project.projectName}')
             ],
           ),
         ),
         actions: [
           TextButton(
-              onPressed: () => renameProject(context, idProject, index),
+              onPressed: () => saveRenamedProject(context, project.id, index),
               child: const Text('Save')),
           TextButton(
               onPressed: () {
@@ -225,7 +223,8 @@ class ModelMain extends ChangeNotifier {
     );
   }
 
-  void renameProject(BuildContext context, String idProject, int index) {
+  /// Сохранить измененное имя в БД.
+  void saveRenamedProject(BuildContext context, String idProject, int index) {
     final db = FirebaseFirestore.instance;
     db
         .collection('projects')

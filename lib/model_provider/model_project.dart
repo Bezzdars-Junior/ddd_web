@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 class ModelProject extends ChangeNotifier {
   int countFeaturesDataBase = 0;
-
   int flexAnal = 1;
   int flexDev = 1;
   int flexTest = 1;
