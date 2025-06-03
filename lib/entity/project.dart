@@ -12,6 +12,8 @@ class Project {
   String dateTime;
   String id;
   String viewName;
+  String dateChange;
+  String description;
 
   /// Конструктор класса [Feature].
   Project({
@@ -20,6 +22,8 @@ class Project {
     required this.dateTime,
     required this.id,
     required this.viewName,
+    required this.dateChange,
+    required this.description,
   });
 
   /// метод для преобразования JSON в объект [Project].
@@ -34,6 +38,8 @@ class Project {
       dateTime: data['dataTime'],
       id: data['id'],
       viewName: data['viewName'],
+      dateChange: data['dateChange'],
+      description: data['description'],
     );
   }
 
@@ -45,6 +51,8 @@ class Project {
       "dataTime": dateTime,
       "id": id,
       "viewName": viewName,
+      "dateChange": dateChange,
+      "description": description,
     };
   }
 }
