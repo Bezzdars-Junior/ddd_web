@@ -13,7 +13,7 @@ class CardFavoriteProject extends StatelessWidget {
       mainAxisSpacing: 10,
       crossAxisCount: 5,
       childAspectRatio: 3,
-      children: List.generate(model.favoriteProjects.length, (index) {
+      children: List.generate(model.favouriteProjects.length, (index) {
         return Stack(
           children: [
             Container(
@@ -22,12 +22,12 @@ class CardFavoriteProject extends StatelessWidget {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ],
-                border: Border.all(color: Colors.black.withOpacity(0.2)),
+                border: Border.all(color: Colors.black.withValues(alpha: 0.2)),
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
               ),
               child: Row(
@@ -45,7 +45,7 @@ class CardFavoriteProject extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          model.favoriteProjects[index].viewName,
+                          model.favouriteProjects[index].projectName,
                           overflow: TextOverflow.ellipsis,
 
                           style: const TextStyle(
@@ -54,15 +54,15 @@ class CardFavoriteProject extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'Дата создания: ${model.favoriteProjects[index].dateTime}',
+                          'Дата создания: ${model.favouriteProjects[index].dateTime}',
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          'Дата изменения: ${model.favoriteProjects[index].dateChange}',
+                          'Дата изменения: ${model.favouriteProjects[index].dateChange}',
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          'Описание: ${model.favoriteProjects[index].description}',
+                          'Описание: ${model.favouriteProjects[index].description}',
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -77,11 +77,10 @@ class CardFavoriteProject extends StatelessWidget {
               color: Colors.transparent,
               child: InkWell(
                 borderRadius: BorderRadius.circular(10),
-                onTap:
-                    () => Navigator.of(context).pushNamed(
-                      '/project',
-                      arguments: model.favoriteProjects[index].projectName,
-                    ),
+                onTap: () => Navigator.of(context).pushNamed(
+                  '/project',
+                  arguments: model.favouriteProjects[index].projectName,
+                ),
               ),
             ),
             Align(
@@ -90,30 +89,25 @@ class CardFavoriteProject extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
-                    onPressed:
-                        () => model.switchFavorite(
-                          model.favoriteProjects[index].id,
-                          index,
-                          model.favoriteProjects[index].favorite,
-                        ),
+                    onPressed: () => model.switchFavourite(
+                      model.favouriteProjects[index],
+                      index,
+                    ),
                     icon: const Icon(Icons.star),
                   ),
                   IconButton(
-                    onPressed:
-                        () => model.changeProject(
-                          context: context,
-                          project: model.favoriteProjects[index],
-                          index: index,
-                          favorite: model.favoriteProjects[index].favorite,
-                        ),
+                    onPressed: () => model.changeProject(
+                      context: context,
+                      project: model.favouriteProjects[index],
+                      index: index,
+                    ),
                     icon: const Icon(Icons.create),
                   ),
                   IconButton(
                     onPressed: () {
                       model.deleteProject(
-                        project: model.favoriteProjects[index],
+                        project: model.favouriteProjects[index],
                         index: index,
-                        favorite: model.favoriteProjects[index].favorite,
                       );
                     },
                     icon: const Icon(Icons.delete),

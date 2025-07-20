@@ -22,12 +22,12 @@ class CardProject extends StatelessWidget {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ],
-                border: Border.all(color: Colors.black.withOpacity(0.2)),
+                border: Border.all(color: Colors.black.withValues(alpha: 0.2)),
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
               ),
               child: Row(
@@ -45,7 +45,7 @@ class CardProject extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          model.projects[index].viewName,
+                          model.projects[index].projectName,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: Colors.black,
@@ -76,11 +76,10 @@ class CardProject extends StatelessWidget {
               color: Colors.transparent,
               child: InkWell(
                 borderRadius: BorderRadius.circular(10),
-                onTap:
-                    () => Navigator.of(context).pushNamed(
-                      '/project',
-                      arguments: model.projects[index].projectName,
-                    ),
+                onTap: () => Navigator.of(context).pushNamed(
+                  '/project',
+                  arguments: model.projects[index].projectName,
+                ),
               ),
             ),
             Align(
@@ -89,22 +88,16 @@ class CardProject extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
-                    onPressed:
-                        () => model.switchFavorite(
-                          model.projects[index].id,
-                          index,
-                          model.projects[index].favorite,
-                        ),
+                    onPressed: () =>
+                        model.switchFavourite(model.projects[index], index),
                     icon: const Icon(Icons.star_outline),
                   ),
                   IconButton(
-                    onPressed:
-                        () => model.changeProject(
-                          context: context,
-                          project: model.projects[index],
-                          index: index,
-                          favorite: model.projects[index].favorite,
-                        ),
+                    onPressed: () => model.changeProject(
+                      context: context,
+                      project: model.projects[index],
+                      index: index,
+                    ),
                     icon: const Icon(Icons.create),
                   ),
                   IconButton(
@@ -112,7 +105,6 @@ class CardProject extends StatelessWidget {
                       model.deleteProject(
                         project: model.projects[index],
                         index: index,
-                        favorite: model.projects[index].favorite,
                       );
                     },
                     icon: const Icon(Icons.delete),

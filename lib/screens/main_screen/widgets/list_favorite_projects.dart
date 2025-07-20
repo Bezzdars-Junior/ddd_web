@@ -46,6 +46,5 @@ class ListFavoriteProjects extends StatelessWidget {
         ],
       ),
     );
-    ;
   }
 }
