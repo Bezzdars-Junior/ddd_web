@@ -6,6 +6,7 @@ class HeaderMainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 100,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -19,7 +20,7 @@ class HeaderMainScreen extends StatelessWidget {
           children: [
             SizedBox(width: 20),
             Text(
-              'Список проектов:',
+              'Список проектов',
               style: TextStyle(fontSize: 40, color: Colors.white),
             ),
           ],

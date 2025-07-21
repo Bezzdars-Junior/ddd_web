@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:ddd/entity/project.dart';
+import 'package:ddd/screens/main_screen/entity/project.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -16,64 +16,68 @@ class ModelMain extends ChangeNotifier {
   /// метод для получения списка [Project] из БД.
   Future<String> initProjects() async {
     final url = Uri.parse('http://localhost:8080/main_page');
-    final response = await http.get(url);
-    if (response.statusCode == 200) {
-      final json = await jsonDecode(response.body) as List<dynamic>;
-      final posts = json.map((e) => Project.fromJson(e)).toList();
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final json = await jsonDecode(response.body) as List<dynamic>;
+        final posts = json.map((e) => Project.fromJson(e)).toList();
+        for (final Project project in posts) {
+          listDistribution(project);
+        }
+      } else {
+        print('${response.statusCode}');
+      }
+    } catch (e) {}
 
-      projects = posts.where((Project project) => !project.favourite).toList();
-      favouriteProjects = posts
-          .where((Project project) => project.favourite)
-          .toList();
-    } else {
-      print('${response.statusCode}');
-    }
     return 'String';
   }
 
   /// [AlertDialog] для добавления нового проекта.
-  addProject(context) => showDialog<String>(
-    context: context,
-    builder: (BuildContext context) => AlertDialog(
-      title: const Center(child: Text('Создание нового проекта')),
-      content: SizedBox(
-        height: 300,
-        width: 300,
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            const Text('Введите название нового проекта'),
-            TextField(controller: controllerNameProject),
-            const SizedBox(height: 10),
-            const Text('Введите описание проекта'),
-            TextField(controller: controllerDescriptionProject, maxLines: 4),
+  void addProject(BuildContext context) => showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Center(child: Text('Создание нового проекта')),
+          content: SizedBox(
+            height: 300,
+            width: 300,
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                const Text('Введите название нового проекта'),
+                TextField(controller: controllerNameProject),
+                const SizedBox(height: 10),
+                const Text('Введите описание проекта'),
+                TextField(
+                  controller: controllerDescriptionProject,
+                  maxLines: 4,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => saveNewProject(context),
+              child: const Text('Save'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                controllerNameProject.text = '';
+                controllerDescriptionProject.text = '';
+              },
+              child: const Text('Cancel'),
+            ),
           ],
         ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => saveNewProject(context),
-          child: const Text('Save'),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-            controllerNameProject.text = '';
-            controllerDescriptionProject.text = '';
-          },
-          child: const Text('Cancel'),
-        ),
-      ],
-    ),
-  );
+      );
 
   /// Сохранить новый проект в БД.
-  void saveNewProject(context) async {
+  void saveNewProject(BuildContext context) async {
     final url = Uri.parse('http://localhost:8080/main_page');
     final headers = {'Content-Type': 'application/json'};
     final body = {
-      'projectName': '${controllerNameProject.text}',
-      'description': '${controllerDescriptionProject.text}',
+      'projectName': controllerNameProject.text,
+      'description': controllerDescriptionProject.text,
       'favourite': false,
     };
     try {
@@ -86,13 +90,12 @@ class ModelMain extends ChangeNotifier {
       final post = Project.fromJson(json);
       listDistribution(post);
       notifyListeners();
-    } catch (e) {
-      print(e);
+    } catch (error) {
+      errorAlert(context, error);
     }
-    Navigator.of(context).pop();
   }
 
-  // /// Удалить проект из БД.
+  /// Удалить проект из БД.
   void deleteProject({required Project project, required int index}) async {
     final url = Uri.parse('http://localhost:8080/main_page/${project.id}');
     final headers = {'Content-Type': 'application/json'};
@@ -201,7 +204,7 @@ class ModelMain extends ChangeNotifier {
     notifyListeners();
   }
 
-  sortProjects(String? value) {
+  void sortProjects(String? value) {
     sortValue = value;
     if (value == 'Имя(по убыв.)') {
       projects.sort((a, b) => b.projectName.compareTo(a.projectName));
@@ -215,7 +218,7 @@ class ModelMain extends ChangeNotifier {
     notifyListeners();
   }
 
-  sortFavoriteProjects(String? value) {
+  void sortFavoriteProjects(String? value) {
     sortFavoriteValue = value;
     if (value == 'Имя(по убыв.)') {
       favouriteProjects.sort((a, b) => b.projectName.compareTo(a.projectName));
@@ -232,7 +235,27 @@ class ModelMain extends ChangeNotifier {
   void listDistribution(Project newProject) {
     if (newProject.favourite) {
       favouriteProjects.add(newProject);
-    } else
+    } else {
       projects.add(newProject);
+    }
+  }
+
+  void errorAlert(BuildContext context, Object error) {
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+      showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Ошибка на сервере'),
+          content: Text(error.toString()),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 }

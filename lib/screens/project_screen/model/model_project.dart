@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ddd/entity/feature.dart';
+import 'package:ddd/screens/project_screen/entity/feature.dart';
 import 'package:flutter/material.dart';
 
 class ModelProject extends ChangeNotifier {

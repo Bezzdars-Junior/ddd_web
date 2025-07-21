@@ -1,4 +1,4 @@
-import 'package:ddd/model_provider/model_project.dart';
+import 'package:ddd/screens/project_screen/model/model_project.dart';
 import 'package:ddd/screens/project_screen/widgets/table/column_body.dart';
 import 'package:ddd/screens/project_screen/widgets/table/column_footer.dart';
 import 'package:ddd/screens/project_screen/widgets/table/header_column.dart';

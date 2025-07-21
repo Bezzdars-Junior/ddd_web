@@ -1,4 +1,4 @@
-import 'package:ddd/model_provider/model_project.dart';
+import 'package:ddd/screens/project_screen/model/model_project.dart';
 import 'package:ddd/screens/project_screen/widgets/left_column/left_column.dart';
 import 'package:ddd/screens/project_screen/widgets/table/table_project_screen.dart';
 import 'package:flutter/material.dart';
