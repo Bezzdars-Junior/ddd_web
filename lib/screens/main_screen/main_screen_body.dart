@@ -5,6 +5,7 @@ import 'model/model_main.dart';
 import 'widgets/header_main_screen/header_main_screen.dart';
 import 'widgets/list_favourite_project/list_favorite_projects.dart';
 import 'widgets/list_project/list_projects.dart';
+import 'widgets/loading_app_widget.dart';
 
 class MainScreenBodyWidget extends StatefulWidget {
   const MainScreenBodyWidget({super.key});
@@ -20,7 +21,7 @@ class _MainScreenBodyWidgetState extends State<MainScreenBodyWidget> {
   void initState() {
     super.initState();
     final model = context.read<ModelMain>();
-    _initializationFuture = model.initProjects();
+    _initializationFuture = model.initProjects(context: context);
   }
 
   @override
@@ -29,7 +30,25 @@ class _MainScreenBodyWidgetState extends State<MainScreenBodyWidget> {
     return FutureBuilder(
       future: _initializationFuture,
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if (snapshot.hasData) {
+        if (snapshot.hasError) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showDialog<String>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Ошибка'),
+                content: const Text(
+                  'Сервер временно не работает. Пожалуйста, попробуйте позже.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
+            );
+          });
+        } else if (snapshot.hasData) {
           return Column(
             children: [
               const HeaderMainScreen(),
@@ -51,7 +70,7 @@ class _MainScreenBodyWidgetState extends State<MainScreenBodyWidget> {
             ],
           );
         }
-        return const CircularProgressIndicator();
+        return const LoadingAppWidget();
       },
     );
   }

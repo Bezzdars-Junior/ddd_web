@@ -36,10 +36,20 @@ class CardProject extends StatelessWidget {
           child: Row(
             children: [
               const SizedBox(width: 10),
-              Image.network(
-                'https://media1.tenor.com/m/BSYeNq2POsQAAAAC/gachimuchi.gif',
-                width: 100,
-                height: 100,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: Image.network(
+                  projects[index].image,
+                  width: 100,
+                  height: 100,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.asset(
+                      'assets/images/no_icon.png',
+                      width: 100,
+                      height: 100,
+                    );
+                  },
+                ),
               ),
               const SizedBox(width: 5),
               Expanded(
@@ -91,7 +101,8 @@ class CardProject extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
-                onPressed: () => model.switchFavourite(projects[index], index),
+                onPressed: () => model.switchFavourite(
+                    project: projects[index], index: index, context: context),
                 icon: (projects[index].favourite)
                     ? const Icon(Icons.star)
                     : const Icon(Icons.star_outline),
@@ -109,6 +120,7 @@ class CardProject extends StatelessWidget {
                   model.deleteProject(
                     project: projects[index],
                     index: index,
+                    context: context,
                   );
                 },
                 icon: const Icon(Icons.delete),

@@ -13,6 +13,7 @@ Project _$ProjectFromJson(Map<String, dynamic> json) => Project(
       id: (json['id'] as num).toInt(),
       dateChange: json['dateChange'] as String,
       description: json['description'] as String,
+      image: json['image'] as String,
     );
 
 Map<String, dynamic> _$ProjectToJson(Project instance) => <String, dynamic>{
@@ -22,4 +23,5 @@ Map<String, dynamic> _$ProjectToJson(Project instance) => <String, dynamic>{
       'id': instance.id,
       'dateChange': instance.dateChange,
       'description': instance.description,
+      'image': instance.image,
     };

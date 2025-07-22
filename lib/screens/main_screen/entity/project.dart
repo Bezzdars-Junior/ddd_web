@@ -17,6 +17,7 @@ class Project {
   int id;
   String dateChange;
   String description;
+  String image;
 
   Project({
     required this.projectName,
@@ -25,6 +26,7 @@ class Project {
     required this.id,
     required this.dateChange,
     required this.description,
+    required this.image,
   });
 
   factory Project.fromJson(Map<String, dynamic> json) =>

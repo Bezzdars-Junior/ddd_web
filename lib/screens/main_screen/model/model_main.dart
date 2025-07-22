@@ -9,12 +9,9 @@ class ModelMain extends ChangeNotifier {
   String? sortFavoriteValue = 'Имя(по убыв.)';
   List<Project> projects = [];
   List<Project> favouriteProjects = [];
-  int countProjectsDataBase = 0;
-  TextEditingController controllerNameProject = TextEditingController();
-  TextEditingController controllerDescriptionProject = TextEditingController();
 
   /// метод для получения списка [Project] из БД.
-  Future<String> initProjects() async {
+  Future<String> initProjects({required BuildContext context}) async {
     final url = Uri.parse('http://localhost:8080/main_page');
     try {
       final response = await http.get(url);
@@ -25,60 +22,79 @@ class ModelMain extends ChangeNotifier {
           listDistribution(project);
         }
       } else {
-        print('${response.statusCode}');
+        throw Exception('Сервер вернул ошибку: ${response.statusCode}');
       }
-    } catch (e) {}
+    } catch (error) {
+      throw Exception('Не удалось подключиться к серверу');
+    }
 
     return 'String';
   }
 
   /// [AlertDialog] для добавления нового проекта.
-  void addProject(BuildContext context) => showDialog<String>(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Center(child: Text('Создание нового проекта')),
-          content: SizedBox(
-            height: 300,
-            width: 300,
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                const Text('Введите название нового проекта'),
-                TextField(controller: controllerNameProject),
-                const SizedBox(height: 10),
-                const Text('Введите описание проекта'),
-                TextField(
-                  controller: controllerDescriptionProject,
-                  maxLines: 4,
-                ),
-              ],
-            ),
+  void addProject(BuildContext context) {
+    final controllerNameProject = TextEditingController();
+    final controllerDescriptionProject = TextEditingController();
+    final controllerImageProject = TextEditingController();
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Center(child: Text('Создание нового проекта')),
+        content: SizedBox(
+          height: 500,
+          width: 300,
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              const Text('Введите название нового проекта'),
+              TextField(controller: controllerNameProject),
+              const SizedBox(height: 10),
+              const Text('Введите описание проекта'),
+              TextField(
+                controller: controllerDescriptionProject,
+                maxLines: 4,
+              ),
+              const SizedBox(height: 10),
+              const Text('Введите ссылку на картинку'),
+              TextField(controller: controllerImageProject),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => saveNewProject(context),
-              child: const Text('Save'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                controllerNameProject.text = '';
-                controllerDescriptionProject.text = '';
-              },
-              child: const Text('Cancel'),
-            ),
-          ],
         ),
-      );
+        actions: [
+          TextButton(
+            onPressed: () => saveNewProject(
+              context: context,
+              nameProject: controllerNameProject.text,
+              descriptionProject: controllerDescriptionProject.text,
+              imageProject: controllerImageProject.text,
+            ),
+            child: const Text('Save'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
 
   /// Сохранить новый проект в БД.
-  void saveNewProject(BuildContext context) async {
+  void saveNewProject({
+    required BuildContext context,
+    required String nameProject,
+    required String descriptionProject,
+    required String imageProject,
+  }) async {
     final url = Uri.parse('http://localhost:8080/main_page');
     final headers = {'Content-Type': 'application/json'};
     final body = {
-      'projectName': controllerNameProject.text,
-      'description': controllerDescriptionProject.text,
+      'projectName': nameProject,
+      'description': descriptionProject,
       'favourite': false,
+      'image': imageProject
     };
     try {
       final response = await http.post(
@@ -87,8 +103,9 @@ class ModelMain extends ChangeNotifier {
         body: jsonEncode(body),
       );
       final json = await jsonDecode(response.body) as Map<String, dynamic>;
-      final post = Project.fromJson(json);
-      listDistribution(post);
+      final project = Project.fromJson(json);
+      Navigator.of(context).pop();
+      listDistribution(project);
       notifyListeners();
     } catch (error) {
       errorAlert(context, error);
@@ -96,41 +113,56 @@ class ModelMain extends ChangeNotifier {
   }
 
   /// Удалить проект из БД.
-  void deleteProject({required Project project, required int index}) async {
+  void deleteProject(
+      {required Project project,
+      required int index,
+      required BuildContext context}) async {
     final url = Uri.parse('http://localhost:8080/main_page/${project.id}');
     final headers = {'Content-Type': 'application/json'};
     final body = {};
-    await http.delete(
-      url,
-      headers: headers,
-      body: jsonEncode(body), // Кодируем тело в JSON
-    );
-    if (project.favourite) {
-      favouriteProjects.removeAt(index);
-    } else {
-      projects.removeAt(index);
+    try {
+      await http.delete(
+        url,
+        headers: headers,
+        body: jsonEncode(body), // Кодируем тело в JSON
+      );
+      if (project.favourite) {
+        favouriteProjects.removeAt(index);
+      } else {
+        projects.removeAt(index);
+      }
+      notifyListeners();
+    } catch (error) {
+      print('hui');
+      errorAlert(context, error);
     }
-    notifyListeners();
   }
 
   /// Изменить признак [favourite] у проекта.
-  void switchFavourite(Project project, int index) async {
+  void switchFavourite(
+      {required Project project,
+      required int index,
+      required BuildContext context}) async {
     final url = Uri.parse('http://localhost:8080/main_page/${project.id}');
     final headers = {'Content-Type': 'application/json'};
     Map<String, bool> body = {};
-    if (!project.favourite) {
-      projects[index].favourite = true;
-      favouriteProjects.add(projects[index]);
-      projects.removeAt(index);
-      body = {'favourite': true};
-    } else {
-      favouriteProjects[index].favourite = false;
-      projects.add(favouriteProjects[index]);
-      favouriteProjects.removeAt(index);
-      body = {'favourite': false};
+    try {
+      if (!project.favourite) {
+        projects[index].favourite = true;
+        favouriteProjects.add(projects[index]);
+        projects.removeAt(index);
+        body = {'favourite': true};
+      } else {
+        favouriteProjects[index].favourite = false;
+        projects.add(favouriteProjects[index]);
+        favouriteProjects.removeAt(index);
+        body = {'favourite': false};
+      }
+      await http.put(url, headers: headers, body: jsonEncode(body));
+      notifyListeners();
+    } catch (error) {
+      errorAlert(context, error);
     }
-    await http.put(url, headers: headers, body: jsonEncode(body));
-    notifyListeners();
   }
 
   /// [AlertDialog] для переименование проекта.
@@ -139,37 +171,48 @@ class ModelMain extends ChangeNotifier {
     required int index,
     required Project project,
   }) {
+    final controllerNameProject = TextEditingController();
+    final controllerDescriptionProject = TextEditingController();
+    final controllerImageProject = TextEditingController();
     controllerNameProject.text = project.projectName;
     controllerDescriptionProject.text = project.description;
+    controllerImageProject.text = project.image;
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: const Center(child: Text('Переименовать фичу')),
+        title: const Center(child: Text('Переименовать проект')),
         content: SizedBox(
-          height: 300,
+          height: 500,
           width: 300,
           child: Column(
             children: [
               const SizedBox(height: 20),
               const Text('Введите новое имя проекта'),
               TextField(controller: controllerNameProject),
-              Text('ID проекта в БД: ${project.projectName}'),
               const SizedBox(height: 10),
               const Text('Введите новое описание проекта'),
               TextField(controller: controllerDescriptionProject),
+              const SizedBox(height: 10),
+              const Text('Введите новую ссылку на картинку'),
+              TextField(controller: controllerImageProject),
             ],
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () => saveRenamedProject(context, project, index),
+            onPressed: () => saveRenamedProject(
+              context: context,
+              project: project,
+              index: index,
+              nameProject: controllerNameProject.text,
+              descriptionProject: controllerDescriptionProject.text,
+              imageProject: controllerImageProject.text,
+            ),
             child: const Text('Save'),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              controllerNameProject.text = '';
-              controllerDescriptionProject.text = '';
             },
             child: const Text('Cancel'),
           ),
@@ -179,29 +222,37 @@ class ModelMain extends ChangeNotifier {
   }
 
   /// Сохранить измененное имя в БД.
-  void saveRenamedProject(
-    BuildContext context,
-    Project project,
-    int index,
-  ) async {
+  void saveRenamedProject({
+    required BuildContext context,
+    required Project project,
+    required int index,
+    required String nameProject,
+    required String descriptionProject,
+    required String imageProject,
+  }) async {
     final url = Uri.parse('http://localhost:8080/main_page/${project.id}');
     final headers = {'Content-Type': 'application/json'};
     final body = {
-      'projectName': '${controllerNameProject.text}',
-      'description': '${controllerDescriptionProject.text}',
+      'projectName': nameProject,
+      'description': descriptionProject,
+      'image': imageProject,
     };
-    await http.put(url, headers: headers, body: jsonEncode(body));
-    if (project.favourite) {
-      favouriteProjects[index].projectName = controllerNameProject.text;
-      favouriteProjects[index].description = controllerDescriptionProject.text;
-    } else {
-      projects[index].projectName = controllerNameProject.text;
-      projects[index].description = controllerDescriptionProject.text;
+    try {
+      await http.put(url, headers: headers, body: jsonEncode(body));
+      if (project.favourite) {
+        favouriteProjects[index].projectName = nameProject;
+        favouriteProjects[index].description = descriptionProject;
+        favouriteProjects[index].image = imageProject;
+      } else {
+        projects[index].projectName = nameProject;
+        projects[index].description = descriptionProject;
+        projects[index].image = imageProject;
+      }
+      Navigator.of(context).pop();
+      notifyListeners();
+    } catch (error) {
+      errorAlert(context, error);
     }
-    controllerNameProject.text = '';
-    controllerDescriptionProject.text = '';
-    Navigator.of(context).pop();
-    notifyListeners();
   }
 
   void sortProjects(String? value) {
@@ -243,19 +294,19 @@ class ModelMain extends ChangeNotifier {
   void errorAlert(BuildContext context, Object error) {
     if (Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
-      showDialog<String>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Ошибка на сервере'),
-          content: Text(error.toString()),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
     }
+    showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Ошибка на сервере'),
+        content: Text(error.toString()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 }
