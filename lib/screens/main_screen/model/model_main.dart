@@ -1,24 +1,25 @@
-import 'dart:convert';
-
-import 'package:ddd/screens/main_screen/entity/project.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
+import '../export_widgets.dart';
 
 class ModelMain extends ChangeNotifier {
   String? sortValue = 'Имя(по убыв.)';
   String? sortFavoriteValue = 'Имя(по убыв.)';
+  final searchString = TextEditingController();
+
   List<Project> projects = [];
+
   List<Project> favouriteProjects = [];
 
   /// метод для получения списка [Project] из БД.
-  Future<String> initProjects({required BuildContext context}) async {
+  Future<String> initProjects() async {
     final url = Uri.parse('http://localhost:8080/main_page');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final json = await jsonDecode(response.body) as List<dynamic>;
-        final posts = json.map((e) => Project.fromJson(e)).toList();
-        for (final Project project in posts) {
+        final projectsFromBD = json.map((e) => Project.fromJson(e)).toList();
+        for (final Project project in projectsFromBD) {
           listDistribution(project);
         }
       } else {
@@ -308,5 +309,22 @@ class ModelMain extends ChangeNotifier {
         ],
       ),
     );
+  }
+
+  void searchProject() async {
+    if (searchString.text.isNotEmpty) {
+      projects = projects
+          .where(
+            (Project project) => project.projectName
+                .toLowerCase()
+                .contains(searchString.text.toLowerCase()),
+          )
+          .toList();
+    } else {
+      projects = [];
+      favouriteProjects = [];
+      await initProjects();
+    }
+    notifyListeners();
   }
 }

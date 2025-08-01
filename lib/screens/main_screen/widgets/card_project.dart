@@ -1,9 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
-import '../entity/project.dart';
-import '../model/model_main.dart';
+import '../export_widgets.dart';
 
 class CardProject extends StatelessWidget {
   final int index;

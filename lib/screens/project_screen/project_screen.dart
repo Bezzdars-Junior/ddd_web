@@ -1,5 +1,5 @@
 import 'package:ddd/screens/project_screen/model/model_project.dart';
-import 'package:ddd/screens/project_screen/view_projet_screen.dart';
+import 'package:ddd/screens/project_screen/view_project_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

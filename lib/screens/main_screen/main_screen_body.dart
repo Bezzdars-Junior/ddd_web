@@ -1,11 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'model/model_main.dart';
-import 'widgets/header_main_screen/header_main_screen.dart';
-import 'widgets/list_favourite_project/list_favorite_projects.dart';
-import 'widgets/list_project/list_projects.dart';
-import 'widgets/loading_app_widget.dart';
+import 'export_widgets.dart';
 
 class MainScreenBodyWidget extends StatefulWidget {
   const MainScreenBodyWidget({super.key});
@@ -21,7 +14,7 @@ class _MainScreenBodyWidgetState extends State<MainScreenBodyWidget> {
   void initState() {
     super.initState();
     final model = context.read<ModelMain>();
-    _initializationFuture = model.initProjects(context: context);
+    _initializationFuture = model.initProjects();
   }
 
   @override

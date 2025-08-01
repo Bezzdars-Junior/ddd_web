@@ -1,8 +1,4 @@
-import 'package:ddd/screens/main_screen/model/model_main.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'main_screen_body.dart';
+import 'export_widgets.dart';
 
 /// Главная странница со списком проектов.
 class MainScreen extends StatelessWidget {

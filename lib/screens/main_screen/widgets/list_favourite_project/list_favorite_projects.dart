@@ -1,9 +1,4 @@
-import 'package:ddd/screens/main_screen/model/model_main.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import '../table_card_project.dart';
-import 'top_list_favourite_project.dart';
+import '../../export_widgets.dart';
 
 class ListFavouriteProjects extends StatelessWidget {
   const ListFavouriteProjects({super.key});

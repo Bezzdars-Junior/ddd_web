@@ -1,8 +1,4 @@
-import 'package:ddd/screens/main_screen/model/model_main.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import '../dropdown_button_widget.dart';
+import '../../export_widgets.dart';
 
 class TopListProject extends StatelessWidget {
   const TopListProject({super.key});
@@ -12,23 +8,34 @@ class TopListProject extends StatelessWidget {
     final model = context.watch<ModelMain>();
     return Row(
       children: [
-        Expanded(
-          child: Row(
-            children: [
-              const Text(
-                'Все проекты:',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              IconButton(
-                onPressed: () => model.addProject(context),
-                icon: const Icon(Icons.add),
-              ),
-            ],
+        const Text(
+          'Все проекты',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
         ),
+        IconButton(
+          onPressed: () => model.addProject(context),
+          icon: const Icon(Icons.add),
+        ),
+        const SizedBox(width: 30),
+        Expanded(
+          child: Container(
+            color: Colors.white,
+            child: TextField(
+              controller: model.searchString,
+              decoration: const InputDecoration(
+                hintText: 'Поисковая строка',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        IconButton(
+            onPressed: model.searchProject, icon: const Icon(Icons.search)),
+        const SizedBox(width: 30),
         DropdownButtonWidget(projects: model.projects),
       ],
     );

@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-
-import '../entity/project.dart';
-import 'card_project.dart';
+import '../export_widgets.dart';
 
 class TableCardProject extends StatelessWidget {
   final List<Project> projects;

@@ -1,9 +1,4 @@
-import 'package:ddd/screens/main_screen/widgets/list_project/top_list_project.dart';
-import 'package:ddd/screens/main_screen/widgets/table_card_project.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import '../../model/model_main.dart';
+import '../../export_widgets.dart';
 
 class ListProjects extends StatelessWidget {
   const ListProjects({super.key});
