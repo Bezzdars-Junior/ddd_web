@@ -38,7 +38,8 @@ class TopListProject extends StatelessWidget {
           icon: const Icon(Icons.search),
         ),
         const SizedBox(width: 30),
-        DropdownButtonWidget(projects: model.projects),
+        DropdownButtonWidget(
+            projects: model.projects, sortValue: model.sortValue),
       ],
     );
   }

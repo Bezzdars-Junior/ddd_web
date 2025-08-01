@@ -16,7 +16,10 @@ class TopListFavouriteProject extends StatelessWidget {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ),
-        DropdownButtonWidget(projects: model.favouriteProjects),
+        DropdownButtonWidget(
+          projects: model.favouriteProjects,
+          sortValue: model.sortFavouriteValue,
+        ),
       ],
     );
   }

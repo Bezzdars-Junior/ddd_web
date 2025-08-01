@@ -4,7 +4,7 @@ import '../export_widgets.dart';
 class ModelMain extends ChangeNotifier {
   final _apiClient = ApiClient();
   String? sortValue = 'Имя(по убыв.)';
-  String? sortFavoriteValue = 'Имя(по убыв.)';
+  String? sortFavouriteValue = 'Имя(по убыв.)';
   final searchString = TextEditingController();
 
   List<Project> projects = [];
@@ -231,30 +231,27 @@ class ModelMain extends ChangeNotifier {
     }
   }
 
-  void sortProjects(String? value) {
-    sortValue = value;
-    if (value == 'Имя(по убыв.)') {
-      projects.sort((a, b) => b.projectName.compareTo(a.projectName));
-    } else if (value == 'Имя(по возр.)') {
-      projects.sort((a, b) => a.projectName.compareTo(b.projectName));
-    } else if (value == 'Дата(по убыв.)') {
-      projects.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-    } else if (value == 'Дата(по возр.)') {
-      projects.sort((a, b) => a.dateTime.compareTo(b.dateTime));
-    }
-    notifyListeners();
-  }
-
-  void sortFavoriteProjects(String? value) {
-    sortFavoriteValue = value;
-    if (value == 'Имя(по убыв.)') {
-      favouriteProjects.sort((a, b) => b.projectName.compareTo(a.projectName));
-    } else if (value == 'Имя(по возр.)') {
-      favouriteProjects.sort((a, b) => a.projectName.compareTo(b.projectName));
-    } else if (value == 'Дата(по убыв.)') {
-      favouriteProjects.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-    } else if (value == 'Дата(по возр.)') {
-      favouriteProjects.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+  void sortProjects(String? value, List<Project> projectList) {
+    projectList.sort((a, b) {
+      switch (value) {
+        case 'Имя(по убыв.)':
+          return b.projectName.compareTo(a.projectName);
+        case 'Имя(по возр.)':
+          return a.projectName.compareTo(b.projectName);
+        case 'Дата(по убыв.)':
+          return b.dateTime.compareTo(a.dateTime);
+        case 'Дата(по возр.)':
+          return a.dateTime.compareTo(b.dateTime);
+        default:
+          return 0;
+      }
+    });
+    if (projectList.isNotEmpty) {
+      if (!projectList[0].favourite) {
+        sortValue = value;
+      } else {
+        sortFavouriteValue = value;
+      }
     }
     notifyListeners();
   }

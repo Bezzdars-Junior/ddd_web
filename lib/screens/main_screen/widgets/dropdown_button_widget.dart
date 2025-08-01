@@ -2,8 +2,10 @@ import '../export_widgets.dart';
 
 class DropdownButtonWidget extends StatelessWidget {
   final List<Project> projects;
+  final String? sortValue;
   const DropdownButtonWidget({
     required this.projects,
+    required this.sortValue,
     super.key,
   });
 
@@ -11,7 +13,7 @@ class DropdownButtonWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = context.watch<ModelMain>();
     return DropdownButton(
-      value: model.sortValue,
+      value: sortValue,
       items: [
         'Имя(по возр.)',
         'Имя(по убыв.)',
@@ -23,7 +25,7 @@ class DropdownButtonWidget extends StatelessWidget {
           child: Text(value),
         );
       }).toList(),
-      onChanged: (String? value) => model.sortProjects(value),
+      onChanged: (String? value) => model.sortProjects(value, projects),
     );
   }
 }
