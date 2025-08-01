@@ -1,3 +1,4 @@
+import '../game/game.dart';
 import 'export_widgets.dart';
 
 class MainScreenBodyWidget extends StatefulWidget {
@@ -34,7 +35,9 @@ class _MainScreenBodyWidgetState extends State<MainScreenBodyWidget> {
                 ),
                 actions: [
                   TextButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const Game2048()),
+                    ),
                     child: const Text('OK'),
                   ),
                 ],

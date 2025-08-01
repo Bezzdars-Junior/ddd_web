@@ -34,7 +34,9 @@ class TopListProject extends StatelessWidget {
         ),
         const SizedBox(width: 10),
         IconButton(
-            onPressed: model.searchProject, icon: const Icon(Icons.search)),
+          onPressed: () => model.searchProject(context),
+          icon: const Icon(Icons.search),
+        ),
         const SizedBox(width: 30),
         DropdownButtonWidget(projects: model.projects),
       ],

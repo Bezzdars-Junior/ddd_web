@@ -1,8 +1,8 @@
-import 'package:http/http.dart' as http;
-
+import '../../../api/api_client.dart';
 import '../export_widgets.dart';
 
 class ModelMain extends ChangeNotifier {
+  final _apiClient = ApiClient();
   String? sortValue = 'Имя(по убыв.)';
   String? sortFavoriteValue = 'Имя(по убыв.)';
   final searchString = TextEditingController();
@@ -13,23 +13,15 @@ class ModelMain extends ChangeNotifier {
 
   /// метод для получения списка [Project] из БД.
   Future<String> initProjects() async {
-    final url = Uri.parse('http://localhost:8080/main_page');
     try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final json = await jsonDecode(response.body) as List<dynamic>;
-        final projectsFromBD = json.map((e) => Project.fromJson(e)).toList();
-        for (final Project project in projectsFromBD) {
-          listDistribution(project);
-        }
-      } else {
-        throw Exception('Сервер вернул ошибку: ${response.statusCode}');
+      final projectsFromBD = await _apiClient.getProjects();
+      for (final Project project in projectsFromBD) {
+        listDistribution(project);
       }
-    } catch (error) {
-      throw Exception('Не удалось подключиться к серверу');
+      return 'String';
+    } catch (e) {
+      throw Exception();
     }
-
-    return 'String';
   }
 
   /// [AlertDialog] для добавления нового проекта.
@@ -89,8 +81,6 @@ class ModelMain extends ChangeNotifier {
     required String descriptionProject,
     required String imageProject,
   }) async {
-    final url = Uri.parse('http://localhost:8080/main_page');
-    final headers = {'Content-Type': 'application/json'};
     final body = {
       'projectName': nameProject,
       'description': descriptionProject,
@@ -98,15 +88,9 @@ class ModelMain extends ChangeNotifier {
       'image': imageProject
     };
     try {
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(body),
-      );
-      final json = await jsonDecode(response.body) as Map<String, dynamic>;
-      final project = Project.fromJson(json);
-      Navigator.of(context).pop();
+      final project = await _apiClient.postProject(body);
       listDistribution(project);
+      Navigator.of(context).pop();
       notifyListeners();
     } catch (error) {
       errorAlert(context, error);
@@ -114,19 +98,14 @@ class ModelMain extends ChangeNotifier {
   }
 
   /// Удалить проект из БД.
-  void deleteProject(
-      {required Project project,
-      required int index,
-      required BuildContext context}) async {
-    final url = Uri.parse('http://localhost:8080/main_page/${project.id}');
-    final headers = {'Content-Type': 'application/json'};
-    final body = {};
+  void deleteProject({
+    required Project project,
+    required int index,
+    required BuildContext context,
+  }) async {
+    final path = '/${project.id}';
     try {
-      await http.delete(
-        url,
-        headers: headers,
-        body: jsonEncode(body), // Кодируем тело в JSON
-      );
+      await _apiClient.deleteProject(path);
       if (project.favourite) {
         favouriteProjects.removeAt(index);
       } else {
@@ -134,32 +113,29 @@ class ModelMain extends ChangeNotifier {
       }
       notifyListeners();
     } catch (error) {
-      print('hui');
       errorAlert(context, error);
     }
   }
 
   /// Изменить признак [favourite] у проекта.
-  void switchFavourite(
-      {required Project project,
-      required int index,
-      required BuildContext context}) async {
-    final url = Uri.parse('http://localhost:8080/main_page/${project.id}');
-    final headers = {'Content-Type': 'application/json'};
-    Map<String, bool> body = {};
+  void switchFavourite({
+    required Project project,
+    required int index,
+    required BuildContext context,
+  }) async {
     try {
+      final path = '/${project.id}';
+      Map<String, bool> body = {};
+
       if (!project.favourite) {
-        projects[index].favourite = true;
-        favouriteProjects.add(projects[index]);
-        projects.removeAt(index);
         body = {'favourite': true};
+        projects.removeAt(index);
       } else {
-        favouriteProjects[index].favourite = false;
-        projects.add(favouriteProjects[index]);
-        favouriteProjects.removeAt(index);
         body = {'favourite': false};
+        favouriteProjects.removeAt(index);
       }
-      await http.put(url, headers: headers, body: jsonEncode(body));
+      final changedProject = await _apiClient.putProject(path, body);
+      listDistribution(changedProject);
       notifyListeners();
     } catch (error) {
       errorAlert(context, error);
@@ -231,16 +207,15 @@ class ModelMain extends ChangeNotifier {
     required String descriptionProject,
     required String imageProject,
   }) async {
-    final url = Uri.parse('http://localhost:8080/main_page/${project.id}');
-    final headers = {'Content-Type': 'application/json'};
     final body = {
       'projectName': nameProject,
       'description': descriptionProject,
       'image': imageProject,
     };
+    final path = '/${project.id}';
     try {
-      await http.put(url, headers: headers, body: jsonEncode(body));
-      if (project.favourite) {
+      final response = await _apiClient.putProject(path, body);
+      if (response.favourite) {
         favouriteProjects[index].projectName = nameProject;
         favouriteProjects[index].description = descriptionProject;
         favouriteProjects[index].image = imageProject;
@@ -300,7 +275,7 @@ class ModelMain extends ChangeNotifier {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Ошибка на сервере'),
-        content: Text(error.toString()),
+        content: Text('Ошибка. Попробуйте позже. Ошибка: ${error.toString()}'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -311,20 +286,21 @@ class ModelMain extends ChangeNotifier {
     );
   }
 
-  void searchProject() async {
-    if (searchString.text.isNotEmpty) {
-      projects = projects
-          .where(
-            (Project project) => project.projectName
-                .toLowerCase()
-                .contains(searchString.text.toLowerCase()),
-          )
-          .toList();
-    } else {
-      projects = [];
-      favouriteProjects = [];
-      await initProjects();
+  void searchProject(BuildContext context) async {
+    try {
+      if (searchString.text.isNotEmpty) {
+        final response = await _apiClient
+            .getProjects('/search?projectName=${searchString.text}');
+        projects =
+            response.where((Project project) => !project.favourite).toList();
+      } else {
+        final response = await _apiClient.getProjects();
+        projects =
+            response.where((Project project) => !project.favourite).toList();
+      }
+      notifyListeners();
+    } catch (error) {
+      errorAlert(context, error);
     }
-    notifyListeners();
   }
 }
